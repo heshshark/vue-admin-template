@@ -1,11 +1,11 @@
 import axios from 'axios'
-import { Message, MessageBox } from 'element-ui'
+import {Message, MessageBox} from 'element-ui'
 import store from '../store'
-import { getToken } from '@/utils/auth'
+import {getToken} from '@/utils/auth'
 
 // 创建axios实例
 const service = axios.create({
-  baseURL: process.env.BASE_API, // api 的 base_url
+  //baseURL: process.env.BASE_API, // api 的 base_url
   timeout: 5000 // 请求超时时间
 })
 
@@ -13,7 +13,7 @@ const service = axios.create({
 service.interceptors.request.use(
   config => {
     if (store.getters.token) {
-      config.headers['X-Token'] = getToken() // 让每个请求携带自定义token 请根据实际情况自行修改
+      config.headers['Authorization'] = 'Bearer ' + getToken() // 让每个请求携带token--['X-Token']为自定义key 请根据实际情况自行修改
     }
     return config
   },
@@ -31,7 +31,16 @@ service.interceptors.response.use(
      * code为非20000是抛错 可结合自己业务进行修改
      */
     const res = response.data
-    if (res.code !== 20000) {
+    if (res.status === 'success') {
+      if (res.data != null && res.data.total != null) {
+        //解决服务端long变string的问题
+        res.data.total = parseInt(res.data.total)
+      }
+      return res.data
+    } else {
+      return response
+    }
+    /*if (res.code !== 20000) {
       Message({
         message: res.message,
         type: 'error',
@@ -57,7 +66,7 @@ service.interceptors.response.use(
       return Promise.reject('error')
     } else {
       return response.data
-    }
+    }*/
   },
   error => {
     console.log('err' + error) // for debug

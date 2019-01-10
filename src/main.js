@@ -1,5 +1,6 @@
 import Vue from 'vue'
-
+import VueAxios from 'vue-axios'
+import axios from './utils/request'
 import 'normalize.css/normalize.css' // A modern alternative to CSS resets
 
 import ElementUI from 'element-ui'
@@ -15,8 +16,15 @@ import store from './store'
 import '@/icons' // icon
 import '@/permission' // permission control
 
-Vue.use(ElementUI, { locale })
+import * as filters from './filters' // 全局filter
 
+Object.keys(filters).forEach(key => {
+  Vue.filter(key, filters[key])
+})
+
+
+Vue.use(ElementUI, { locale })
+Vue.use(VueAxios, axios)
 Vue.config.productionTip = false
 
 new Vue({
