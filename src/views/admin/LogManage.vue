@@ -79,14 +79,26 @@
 <script>
   import {delObj, fetchList} from '@/api/log'
   import {remote} from '@/api/dict'
-  import waves from '@/directive/waves/index.js' // 水波纹指令
+  import waves from '@/directive/waves/index.js'
   import {mapGetters} from 'vuex'
 
   export default {
-    name: 'table_log',
+    name: 'LogManage',
+
     directives: {
       waves
     },
+
+    filters: {
+      typeFilter(type) {
+        const typeMap = {
+          0: '正常',
+          9: '异常'
+        }
+        return typeMap[type]
+      }
+    },
+
     data() {
       return {
         list: null,
@@ -102,18 +114,11 @@
         tableKey: 0
       }
     },
+
     computed: {
       ...mapGetters(['permissions'])
     },
-    filters: {
-      typeFilter(type) {
-        const typeMap = {
-          0: '正常',
-          9: '异常'
-        }
-        return typeMap[type]
-      }
-    },
+
     created() {
       this.getList()
       this.sys_log_del = this.permissions['sys_log_del']
@@ -121,6 +126,7 @@
         this.dicts = response.data
       })
     },
+
     methods: {
       getSerialNumber(index) {
         return index + 1 + (this.listQuery.page - 1) * this.listQuery.limit
@@ -162,7 +168,3 @@
     }
   }
 </script>
-<style lang="scss" scoped>
-
-</style>
-

@@ -15,6 +15,7 @@
 
   export default {
     name: 'Pagination',
+
     props: {
       total: {
         required: true,
@@ -51,6 +52,7 @@
         default: false
       }
     },
+
     computed: {
       currentPage: {
         get() {
@@ -69,6 +71,7 @@
         }
       }
     },
+
     methods: {}
   }
 </script>

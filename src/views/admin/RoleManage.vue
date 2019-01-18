@@ -81,10 +81,10 @@
   import {fetchMenuTree} from '@/api/menu'
   import {mapGetters} from 'vuex'
   import waves from '@/directive/waves/index.js'
-  import Pagination from '@/components/pagination'
+  import Pagination from '@/components/Pagination'
 
   export default {
-    name: 'table_role',
+    name: 'RoleManage',
     components: {
       Pagination
     },

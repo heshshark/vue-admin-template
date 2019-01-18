@@ -96,16 +96,29 @@
   import {addObj, delObj, fetchList, putObj} from '@/api/dict'
   import waves from '@/directive/waves/index.js' // 水波纹指令
   import {mapGetters} from 'vuex'
-  import Pagination from '@/components/pagination'
+  import Pagination from '@/components/Pagination'
 
   export default {
-    name: 'table_sys_dict',
+    name: 'DictManage',
+
     components: {
       Pagination
     },
+
     directives: {
       waves
     },
+
+    filters: {
+      statusFilter(status) {
+        const statusMap = {
+          0: '有效',
+          1: '无效'
+        }
+        return statusMap[status]
+      }
+    },
+
     data() {
       return {
         list: null,
@@ -173,24 +186,18 @@
         tableKey: 0
       }
     },
+
     computed: {
       ...mapGetters(['permissions'])
     },
-    filters: {
-      statusFilter(status) {
-        const statusMap = {
-          0: '有效',
-          1: '无效'
-        }
-        return statusMap[status]
-      }
-    },
+
     created() {
       this.getList()
       this.sys_dict_add = this.permissions['sys_dict_add']
       this.sys_dict_upd = this.permissions['sys_dict_upd']
       this.sys_dict_del = this.permissions['sys_dict_del']
     },
+
     methods: {
       getList() {
         this.listLoading = true

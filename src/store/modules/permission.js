@@ -60,6 +60,10 @@ const formatRoutes = (aMenu) => {
         },
         name: menuName,
         icon: icon,
+        meta: {
+          title: menuName,
+          icon: icon
+        },
         children: validateNull(children) ? [] : formatRoutes(children)
       }
       aRouter.push(oRouter)
@@ -89,6 +93,5 @@ const permission = {
     }
   }
 }
-
 
 export default permission

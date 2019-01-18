@@ -12,6 +12,8 @@
 
       <el-col :span="8" style='margin-top:15px;'>
         <el-tree
+          node-key="id"
+          highlight-current
           :data="treeData"
           :default-expanded-keys="aExpandedKeys"
           :filter-node-method="filterNode"
@@ -19,8 +21,6 @@
           @node-click="getNodeData"
           @node-expand="nodeExpand"
           @node-collapse="nodeCollapse"
-          node-key="id"
-          highlight-current
           class="filter-tree">
         </el-tree>
       </el-col>
@@ -83,7 +83,7 @@
   import {mapGetters} from 'vuex'
 
   export default {
-    name: 'menu',
+    name: 'MenuManage',
     data() {
       return {
         list: null,

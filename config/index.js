@@ -26,6 +26,13 @@ module.exports = {
         pathRewrite: {
           '^/upms': '/upms'
         }
+      },
+      '/wechat/mp': {
+        target: baseUrl,
+        changeOrigin: true,
+        pathRewrite: {
+          '^/wechat/mp': '/wechat/mp/wechat/mp'
+        }
       }
     },
     cssSourceMap: false

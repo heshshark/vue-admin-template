@@ -70,15 +70,15 @@
 </template>
 
 <script>
-  import {addObj, delObj, fetchList, getObj, putObj} from "@/api/wechat-mp"
+  import {fetchFansList} from "@/api/wechat-mp"
   import {mapGetters} from "vuex"
-  import waves from "@/directive/waves/index.js"
-  import Pagination from '@/components/pagination'
+  import Waves from "@/directive/waves/index.js"
+  import Pagination from '@/components/Pagination'
   import ElRadioGroup from "element-ui/packages/radio/src/radio-group"
   import ElOption from "element-ui/packages/select/src/option"
 
   export default {
-    name: "WechatFans",
+    name: "WechatFansManage",
 
     components: {
       ElOption,
@@ -87,14 +87,15 @@
     },
 
     directives: {
-      waves
+      Waves
     },
 
     filters: {
       statusFilter(status) {
         const statusMap = {
-          0: "关关注",
-          1: "关注中"}
+          0: "未关注",
+          1: "关注中"
+        }
         return statusMap[status]
       }
     },
@@ -138,7 +139,7 @@
       getList() {
         this.listLoading = true
         this.listQuery.isAsc = false
-        fetchList(this.listQuery).then(response => {
+        fetchFansList(this.listQuery).then(response => {
           this.list = response.records
           this.total = response.total
           this.listLoading = false

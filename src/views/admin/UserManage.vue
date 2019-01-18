@@ -102,10 +102,10 @@
   import waves from "@/directive/waves/index.js"
   import ElRadioGroup from "element-ui/packages/radio/src/radio-group"
   import ElOption from "element-ui/packages/select/src/option"
-  import Pagination from '@/components/pagination'
+  import Pagination from '@/components/Pagination'
 
   export default {
-    name: "table_user",
+    name: "UserManage",
 
     components: {
       ElOption,

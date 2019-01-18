@@ -10,19 +10,26 @@
             <el-form-item label="原密码" prop="password">
               <el-input type="password" v-model="ruleForm2.password" auto-complete="off"></el-input>
             </el-form-item>
-            <el-form-item label="密码" prop="newpassword1">
+            <el-form-item label="密码" prop="newPassword">
               <el-input type="password" v-model="ruleForm2.newPassword" auto-complete="off"></el-input>
             </el-form-item>
-            <el-form-item label="确认密码" prop="newpassword2">
-              <el-input type="password" v-model="ruleForm2.newpassword2" auto-complete="off"></el-input>
+            <el-form-item label="确认密码" prop="checkPassword">
+              <el-input type="password" v-model="ruleForm2.checkPassword" auto-complete="off"></el-input>
             </el-form-item>
             <el-form-item label="手机号" prop="phone">
               <el-input v-model="ruleForm2.phone" placeholder="验证码登录使用"></el-input>
             </el-form-item>
             <el-form-item label="头像">
-              <my-upload field="file" @crop-upload-success="cropUploadSuccess" v-model="show" :width="300" :height="300" url="/admin/user/upload"
-                         :headers="headers" img-format="png"></my-upload>
-              <img :src="ruleForm2.avatar">
+              <vue-upload
+                url="/upms/user/upload"
+                field="file"
+                img-format="png"
+                v-model="show"
+                :width="300"
+                :height="300"
+                :headers="headers"
+                @crop-upload-success="cropUploadSuccess"/>
+              <img alt="头像" :src="ruleForm2.avatar">
               <el-button type="primary" @click="toggleShow" size="mini">选择
                 <i class="el-icon-upload el-icon--right"></i>
               </el-button>
@@ -38,21 +45,21 @@
   </div>
 </template>
 
-
 <script>
-  import {mapState} from "vuex";
-  import myUpload from "vue-image-crop-upload";
+  import VueUpload from "vue-image-crop-upload";
   import ElFormItem from "element-ui/packages/form/src/form-item.vue";
+  import {mapState} from "vuex";
   import {getToken} from "@/utils/auth";
   import request from "@/utils/request";
 
   export default {
     components: {
       ElFormItem,
-      'my-upload': myUpload
+      VueUpload
     },
+
     data() {
-      var validatePass = (rule, value, callback) => {
+      var validatePassword = (rule, value, callback) => {
         if (this.ruleForm2.password !== '') {
           if (value === '') {
             callback(new Error('请输入密码'))
@@ -65,7 +72,7 @@
           callback()
         }
       }
-      var validatePass2 = (rule, value, callback) => {
+      var validateNewPassword = (rule, value, callback) => {
         if (this.ruleForm2.password !== '') {
           if (value === '') {
             callback(new Error('请再次输入密码'))
@@ -87,25 +94,28 @@
         ruleForm2: {
           password: '',
           newPassword: '',
-          newpassword2: '',
+          checkPassword: '',
           avatar: '',
           phone: ''
         },
         rules2: {
-          newPassword: [{validator: validatePass, trigger: 'blur'}],
-          newpassword2: [{validator: validatePass2, trigger: 'blur'}]
+          newPassword: [{validator: validatePassword, trigger: 'blur'}],
+          checkPassword: [{validator: validateNewPassword, trigger: 'blur'}]
         }
       }
     },
-    created() {
-      this.ruleForm2.avatar = this.userInfo.avatar
-      this.ruleForm2.phone = this.userInfo.phone
-    },
+
     computed: {
       ...mapState({
         userInfo: state => state.user.userInfo
       })
     },
+
+    created() {
+      this.ruleForm2.avatar = this.userInfo.avatar
+      this.ruleForm2.phone = this.userInfo.phone
+    },
+
     methods: {
       submitForm(formName) {
         this.$refs[formName].validate(valid => {
