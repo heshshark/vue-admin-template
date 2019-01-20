@@ -15,12 +15,15 @@
 
   export default {
     name: 'Layout',
+
     components: {
+      AppMain,
       Navbar,
-      Sidebar,
-      AppMain
+      Sidebar
     },
+
     mixins: [ResizeMixin],
+
     computed: {
       sidebar() {
         return this.$store.state.app.sidebar
@@ -37,6 +40,7 @@
         }
       }
     },
+
     methods: {
       handleClickOutside() {
         this.$store.dispatch('CloseSideBar', {withoutAnimation: false})

@@ -43,6 +43,14 @@ export function updateFansTag(tag) {
 /*
 菜单
  */
+export function fetchMenuList(query) {
+  return request({
+    url: prefix + '/menus/queries',
+    method: 'post',
+    data: query
+  })
+}
+
 export function getCurrentWechatMenu() {
   return request({
     url: prefix + '/menus/current',

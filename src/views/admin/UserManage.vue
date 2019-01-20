@@ -232,6 +232,9 @@
 
     created() {
       this.getList()
+      this.sys_user_add = this.permissions["sys_user_add"]
+      this.sys_user_upd = this.permissions["sys_user_upd"]
+      this.sys_user_del = this.permissions["sys_user_del"]
     },
 
     methods: {
