@@ -54,7 +54,7 @@
               </el-select>
             </el-form-item>
             <el-form-item label="排序" prop="sort">
-              <el-input v-model="form.sort" :disabled="formEdit" placeholder="请输入排序"></el-input>
+              <el-input v-model="form.sortNum" :disabled="formEdit" placeholder="请输入排序"></el-input>
             </el-form-item>
             <el-form-item label="前端组件" prop="component">
               <el-input v-model="form.component" :disabled="formEdit" placeholder="请输入描述"></el-input>
@@ -117,7 +117,7 @@
           parentId: undefined,
           url: undefined,
           icon: undefined,
-          sort: undefined,
+          sortNum: undefined,
           component: undefined,
           menuType: undefined,
           method: undefined,

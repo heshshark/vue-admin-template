@@ -3,27 +3,19 @@
     <div class="filter-container">
       <el-input v-model="listQuery.username" placeholder="用户名" @keyup.enter.native="handleFilter" style="width: 200px;" class="filter-item"></el-input>
       <el-button class="filter-item" @click="handleFilter" type="primary" v-waves icon="search">搜索</el-button>
-
-      <el-button v-if="sys_user_add" @click="handleCreate" type="primary" icon="edit" class="filter-item" style="margin-left: 10px;">添加</el-button>
     </div>
 
     <el-table :key='tableKey' :data="list" v-loading="listLoading" border fit highlight-current-row style="width: 99%">
       <el-table-column type="index" width="50">
       </el-table-column>
 
-      <el-table-column align="center" label="昵称">
+      <el-table-column align="center" label="微信昵称">
         <template slot-scope="scope">
           <span>
             <img v-if="scope.row.avatarUrl" :src="scope.row.avatarUrl"
                  class="user-avatar" style="width: 20px; height: 20px; border-radius: 50%;"/>
             {{scope.row.nickName}}
           </span>
-        </template>
-      </el-table-column>
-
-      <el-table-column align="center" label="备注名称">
-        <template slot-scope="scope">
-          <span>{{scope.row.remarkName}}</span>
         </template>
       </el-table-column>
 
@@ -47,13 +39,19 @@
 
       <el-table-column align="center" label="标签">
         <template slot-scope="scope">
-          <span v-for="tag in scope.row.tagList">{{tag.name}} </span>
+          <span v-for="tag in scope.row.tagList">{{tag.tagName}} </span>
         </template>
       </el-table-column>
 
       <el-table-column align="center" label="关注时间">
         <template slot-scope="scope">
           <span>{{scope.row.gmtSubscribed | parseTime('{y}-{m}-{d} {h}:{i}')}}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column align="center" label="备注名称">
+        <template slot-scope="scope">
+          <span>{{scope.row.remarkName}}</span>
         </template>
       </el-table-column>
 

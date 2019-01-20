@@ -3,8 +3,6 @@
     <div class="filter-container">
       <el-input v-model="listQuery.username" placeholder="用户名" @keyup.enter.native="handleFilter" style="width: 200px;" class="filter-item"></el-input>
       <el-button type="primary" icon="search" v-waves @click="handleFilter" class="filter-item">搜索</el-button>
-
-      <el-button type="primary" icon="edit" v-if="sys_user_add" @click="handleCreate" class="filter-item" style="margin-left: 10px;">添加</el-button>
     </div>
 
     <el-table :key='tableKey' :data="list" v-loading="listLoading" border fit highlight-current-row style="width: 99%">
