@@ -2,8 +2,6 @@
   <div class="app-container calendar-list-container">
     <div class="filter-container">
       <el-input v-model="listQuery.country" placeholder="国家" @keyup.enter.native="handleFilter" style="width: 200px;" class="filter-item"></el-input>
-      <el-input v-model="listQuery.province" placeholder="省份" @keyup.enter.native="handleFilter" style="width: 200px;" class="filter-item"></el-input>
-      <el-input v-model="listQuery.city" placeholder="城市" @keyup.enter.native="handleFilter" style="width: 200px;" class="filter-item"></el-input>
       <el-button class="filter-item" @click="handleFilter" type="primary" v-waves icon="search">搜索</el-button>
     </div>
 
@@ -11,7 +9,7 @@
       <el-table-column type="index" width="50">
       </el-table-column>
 
-      <el-table-column align="center" label="标签">
+      <el-table-column align="center" label="规则名称">
         <template slot-scope="scope">
           <span>{{scope.row.tagName || '无'}}</span>
         </template>
@@ -20,36 +18,6 @@
       <el-table-column align="center" label="性别">
         <template slot-scope="scope">
           <span>{{scope.row.sex | sexFilter}}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column align="center" label="国家">
-        <template slot-scope="scope">
-          <span>{{scope.row.country}}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column align="center" label="省份">
-        <template slot-scope="scope">
-          <span>{{scope.row.province}}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column align="center" label="城市">
-        <template slot-scope="scope">
-          <span>{{scope.row.city}}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column align="center" label="客户端类型">
-        <template slot-scope="scope">
-          <span>{{scope.row.clientPlatformType | clientFilter}}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column align="center" label="语言">
-        <template slot-scope="scope">
-          <span>{{scope.row.language}}</span>
         </template>
       </el-table-column>
 
