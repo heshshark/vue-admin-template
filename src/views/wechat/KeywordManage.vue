@@ -11,13 +11,36 @@
 
       <el-table-column align="center" label="规则名称">
         <template slot-scope="scope">
-          <span>{{scope.row.tagName || '无'}}</span>
+          <span>{{ scope.row.ruleName || '无' }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="性别">
+      <el-table-column align="center" label="关键字">
         <template slot-scope="scope">
-          <span>{{scope.row.sex | sexFilter}}</span>
+          <span>{{ scope.row.keyword }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column align="center" label="匹配规则">
+        <template slot-scope="scope">
+          <span>{{ scope.row.matchMode | matchModeFilter }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column align="center" label="回复消息类型">
+        <template slot-scope="scope">
+          <span>{{ scope.row.messageType | messageTypeFilter }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column align="center" label="操作" width="200">
+        <template slot-scope="scope">
+          <el-button v-if="sys_user_upd" size="small" type="success" @click="handleUpdate(scope.row)">详情
+          </el-button>
+          <el-button v-if="sys_user_del" size="small" type="danger" @click="remove(scope.row)">修改
+          </el-button>
+          <el-button v-if="sys_user_del" size="small" type="danger" @click="remove(scope.row)">删除
+          </el-button>
         </template>
       </el-table-column>
 
@@ -28,7 +51,7 @@
 </template>
 
 <script>
-  import {fetchMenuList,deply} from "@/api/wechat-mp"
+  import {fetchMenuList, deply} from "@/api/wechat-mp"
   import {mapGetters} from "vuex"
   import Waves from "@/directive/waves/index.js"
   import Pagination from '@/components/Pagination'
@@ -36,7 +59,7 @@
   import ElOption from "element-ui/packages/select/src/option"
 
   export default {
-    name: "WechatMenuManage",
+    name: "WechatKeywordManage",
 
     components: {
       ElOption,
@@ -49,21 +72,22 @@
     },
 
     filters: {
-      sexFilter(sex) {
-        const sexMap = {
-          0: "无",
-          1: "男",
-          2: "女"
+      matchModeFilter(mode) {
+        const matchModeMap = {
+          0: "全匹配",
+          1: "半匹配"
         }
-        return sexMap[sex]
+        return matchModeMap[mode]
       },
-      clientFilter(client) {
-        const clientMap = {
-          1: "iOS",
-          2: "Android",
-          3: "其他"
+      messageTypeFilter(messageType) {
+        const messageTypeMap = {
+          0: "文本消息",
+          1: "图片消息",
+          2: "语音消息",
+          3: "视频消息",
+          4: "图文消息"
         }
-        return clientMap[client]
+        return messageTypeMap[messageType]
       }
     },
 
