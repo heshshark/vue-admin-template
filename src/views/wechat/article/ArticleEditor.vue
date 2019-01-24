@@ -49,7 +49,7 @@
     <pagination v-show="!listLoading" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList"/>
 
     <el-dialog :title="dialogTypeMap[dialogType]" :visible.sync="dialogFormVisible">
-      <el-form :model="form" :rules="rules" label-width="100px" ref="form">
+      <el-form :model="form" :rules="rules" ref="form" label-width="100px">
         <el-form-item label="规则名称" prop="ruleName">
           <el-input v-model="form.ruleName" placeholder="请输规则名称"/>
         </el-form-item>
@@ -160,39 +160,6 @@
           textContent: undefined,
           isEnable: undefined
         },
-        rules: {
-          ruleName: [
-            {
-              required: true,
-              message: "请填写规则名称",
-              trigger: "blur"
-            }
-          ],
-          keyword: [
-            {
-              required: true,
-              message: "请填写关键字",
-              trigger: "blur"
-            },
-            {
-              max: 60,
-              message: "长度需在60个字符以内",
-              trigger: "blur"
-            }
-          ],
-          textContent: [
-            {
-              required: true,
-              message: "请填写文本回复内容",
-              trigger: "blur"
-            },
-            {
-              max: 300,
-              message: "长度需在300个字符以内",
-              trigger: "blur"
-            }
-          ]
-        },
         matchModeOptions: [
           {
             code: 0,
@@ -232,6 +199,10 @@
         dialogTypeMap: {
           create: "创建",
           update: "编辑"
+        },
+        isDisabled: {
+          0: false,
+          1: true
         },
         tableKey: 0
       }
@@ -280,6 +251,10 @@
       handleUpdate(row) {
         getKeyword(row.id).then(response => {
           this.form = response
+          this.role = []
+          for (let i = 0; i < row.roleList.length; i++) {
+            this.role[i] = row.roleList[i].id
+          }
           this.dialogFormVisible = true
           this.dialogType = "update"
         });

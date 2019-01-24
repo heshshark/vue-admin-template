@@ -117,3 +117,81 @@ export function updateMenuButton(button) {
 /*
 文章
  */
+export function fetchArticleList(query) {
+  return request({
+    url: prefix + '/keywords/queries',
+    method: 'post',
+    data: query
+  })
+}
+
+export function getArticle(articlesId) {
+  return request({
+    url: prefix + '/articles/' + articlesId,
+    method: 'get'
+  })
+}
+
+export function addArticle(article) {
+  return request({
+    url: prefix + '/articles/',
+    method: 'post',
+    data: article
+  })
+}
+
+export function deleteArticle(articleId) {
+  return request({
+    url: prefix + '/articles/' + articleId,
+    method: 'delete'
+  })
+}
+
+export function updateArticle(article) {
+  return request({
+    url: prefix + '/articles/',
+    method: 'patch',
+    data: article
+  })
+}
+
+/*
+关键字
+ */
+export function fetchKeywordList(query) {
+  return request({
+    url: prefix + '/keywords/queries',
+    method: 'post',
+    data: query
+  })
+}
+
+export function getKeyword(keywordId) {
+  return request({
+    url: prefix + '/keywords/' + keywordId,
+    method: 'get'
+  })
+}
+
+export function addKeyword(keyword) {
+  return request({
+    url: prefix + '/keywords/',
+    method: 'post',
+    data: keyword
+  })
+}
+
+export function deleteKeyword(keywordId) {
+  return request({
+    url: prefix + '/keywords/' + keywordId,
+    method: 'delete'
+  })
+}
+
+export function updateKeyword(keyword) {
+  return request({
+    url: prefix + '/keywords/',
+    method: 'patch',
+    data: keyword
+  })
+}

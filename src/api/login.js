@@ -34,7 +34,7 @@ export function getInfo(token) {
 
 export function logout(token) {
   return request({
-    url: '/auth/oauth/token?accessToken=' + token,
+    url: '/auth/token?accessToken=' + token,
     method: 'delete'
   })
 }

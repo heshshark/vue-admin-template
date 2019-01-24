@@ -100,16 +100,12 @@
   import {fetchAllRole} from "@/api/role"
   import {mapGetters} from "vuex"
   import waves from "@/directive/waves/index.js"
-  import ElRadioGroup from "element-ui/packages/radio/src/radio-group"
-  import ElOption from "element-ui/packages/select/src/option"
   import Pagination from '@/components/Pagination'
 
   export default {
     name: "UserManage",
 
     components: {
-      ElOption,
-      ElRadioGroup,
       Pagination
     },
 
@@ -241,11 +237,15 @@
       getList() {
         this.listLoading = true
         this.listQuery.isAsc = false
-        fetchList(this.listQuery).then(response => {
-          this.list = response.records
-          this.total = response.total
-          this.listLoading = false
-        })
+        fetchList(this.listQuery)
+          .then(response => {
+            this.list = response.records
+            this.total = response.total
+            this.listLoading = false
+          })
+          .catch(() => {
+            this.listLoading = false
+          })
       },
 
       create(formName) {
@@ -261,12 +261,12 @@
                 message: "创建成功",
                 type: "success",
                 duration: 2000
-              });
-            });
+              })
+            })
           } else {
-            return false;
+            return false
           }
-        });
+        })
       },
 
       remove(row) {

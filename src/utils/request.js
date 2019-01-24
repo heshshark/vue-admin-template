@@ -37,6 +37,15 @@ service.interceptors.response.use(
         res.data.total = parseInt(res.data.total)
       }
       return res.data
+    } else if (res.status === 'fail') {
+      MessageBox.alert(
+        res.message,
+        '请求失败',
+        {
+          type: 'warning'
+        }
+      )
+      return Promise.reject('error')
     } else {
       return response
     }

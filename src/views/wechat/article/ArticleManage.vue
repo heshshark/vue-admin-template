@@ -9,38 +9,35 @@
       <el-table-column type="index" width="50">
       </el-table-column>
 
-      <el-table-column align="center" label="规则名称">
+      <el-table-column align="center" label="标题">
         <template slot-scope="scope">
-          <span>{{ scope.row.ruleName || '无' }}</span>
+          <span>{{ scope.row.title || '无' }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="关键字">
+      <el-table-column align="center" label="摘要">
         <template slot-scope="scope">
-          <span>{{ scope.row.keyword }}</span>
+          <span>{{ scope.row.digest }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="匹配规则">
+      <el-table-column align="center" label="作者">
         <template slot-scope="scope">
-          <span>{{ scope.row.matchMode | matchModeFilter }}</span>
+          <span>{{ scope.row.author }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="回复消息类型">
+      <el-table-column align="center" label="原文链接">
         <template slot-scope="scope">
-          <span>{{ scope.row.messageType | messageTypeFilter }}</span>
+          <span>{{ scope.row.contentSourceUrl }}</span>
         </template>
       </el-table-column>
 
       <el-table-column align="center" label="操作" width="200">
         <template slot-scope="scope">
-          <el-button v-if="sys_user_upd" size="small" type="success" @click="handleUpdate(scope.row)">详情
-          </el-button>
-          <el-button v-if="sys_user_del" size="small" type="danger" @click="handleUpdate(scope.row)">修改
-          </el-button>
-          <el-button v-if="sys_user_del" size="small" type="danger" @click="remove(scope.row)">删除
-          </el-button>
+          <el-button size="small" type="success" @click="handleDetail(scope.row)">详情</el-button>
+          <el-button v-if="wechat_article_upd" size="small" type="danger" @click="handleUpdate(scope.row)">修改</el-button>
+          <el-button v-if="wechat_article_del" size="small" type="danger" @click="remove(scope.row)">删除</el-button>
         </template>
       </el-table-column>
 
@@ -49,7 +46,7 @@
     <pagination v-show="!listLoading" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList"/>
 
     <el-dialog :title="dialogTypeMap[dialogType]" :visible.sync="dialogFormVisible">
-      <el-form :model="form" :rules="rules" label-width="100px" ref="form">
+      <el-form :model="form" :rules="rules" ref="form" label-width="100px">
         <el-form-item label="规则名称" prop="ruleName">
           <el-input v-model="form.ruleName" placeholder="请输规则名称"/>
         </el-form-item>
@@ -96,7 +93,7 @@
 </template>
 
 <script>
-  import {fetchKeywordList, getKeyword, addKeyword, deleteKeyword, updateKeyword} from "@/api/wechat-mp"
+  import {fetchArticleList, getArticle, addArticle, deleteArticle, updateArticle} from "@/api/wechat-mp"
   import {mapGetters} from "vuex"
   import Waves from "@/directive/waves/index.js"
   import Pagination from '@/components/Pagination'
@@ -160,39 +157,6 @@
           textContent: undefined,
           isEnable: undefined
         },
-        rules: {
-          ruleName: [
-            {
-              required: true,
-              message: "请填写规则名称",
-              trigger: "blur"
-            }
-          ],
-          keyword: [
-            {
-              required: true,
-              message: "请填写关键字",
-              trigger: "blur"
-            },
-            {
-              max: 60,
-              message: "长度需在60个字符以内",
-              trigger: "blur"
-            }
-          ],
-          textContent: [
-            {
-              required: true,
-              message: "请填写文本回复内容",
-              trigger: "blur"
-            },
-            {
-              max: 300,
-              message: "长度需在300个字符以内",
-              trigger: "blur"
-            }
-          ]
-        },
         matchModeOptions: [
           {
             code: 0,
@@ -233,6 +197,10 @@
           create: "创建",
           update: "编辑"
         },
+        isDisabled: {
+          0: false,
+          1: true
+        },
         tableKey: 0
       }
     },
@@ -243,13 +211,16 @@
 
     created() {
       this.getList()
+      this.wechat_article_add = this.permissions["wechat_article_add"]
+      this.wechat_article_upd = this.permissions["wechat_article_upd"]
+      this.wechat_article_del = this.permissions["wechat_article_del"]
     },
 
     methods: {
       getList() {
         this.listLoading = true
         this.listQuery.isAsc = false
-        fetchKeywordList(this.listQuery).then(response => {
+        fetchArticleList(this.listQuery).then(response => {
           this.list = response.records
           this.total = response.total
           this.listLoading = false
@@ -261,7 +232,7 @@
         this.form.roleIdList = this.role
         set[formName].validate(valid => {
           if (valid) {
-            addKeyword(this.form).then(() => {
+            addArticle(this.form).then(() => {
               this.dialogFormVisible = false
               this.getList()
               this.$notify({
@@ -277,12 +248,23 @@
         })
       },
 
+      handleCreate() {
+        this.dialogFormVisible = true
+        this.dialogType = "update"
+      },
       handleUpdate(row) {
-        getKeyword(row.id).then(response => {
+        getArticle(row.id).then(response => {
           this.form = response
           this.dialogFormVisible = true
           this.dialogType = "update"
-        });
+        })
+      },
+      handleDetail(row) {
+        getArticle(row.id).then(response => {
+          this.form = response
+          this.dialogFormVisible = true
+          this.dialogType = "detail"
+        })
       },
 
       handleFilter() {
