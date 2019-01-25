@@ -3,8 +3,7 @@
     <el-tabs @tab-click="handleTabClick">
       <el-tab-pane label="图文素材" name="first">
         <el-table :key='tableKey' :data="list" v-loading="listLoading" border fit highlight-current-row style="width: 99%">
-          <el-table-column type="index" width="50">
-          </el-table-column>
+          <el-table-column type="index" width="50"/>
 
           <el-table-column align="center" label="规则名称">
             <template slot-scope="scope">
@@ -42,7 +41,7 @@
         <pagination v-show="!listLoading" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList"/>
 
         <el-dialog :title="dialogTypeMap[dialogType]" :visible.sync="dialogFormVisible">
-          <el-form :model="form" :rules="rules" label-width="100px" ref="form">
+          <el-form :model="form" :rules="formRules" label-width="100px" ref="form">
             <el-form-item label="规则名称" prop="ruleName">
               <el-input v-model="form.ruleName" placeholder="请输规则名称"/>
             </el-form-item>
@@ -53,17 +52,13 @@
 
             <el-form-item label="匹配模式" prop="matchMode">
               <el-select v-model="role" multiple placeholder="请选择" class="filter-item" style="width: 300px">
-                <el-option v-for="item in matchModeOptions" :key="item.code" :value="item.code" :label="item.desc">
-                  <span style="float: left">{{ item.name }}</span>
-                  <span style="float: right; margin-right:30px; color: #8492a6; font-size: 13px">{{ item.roleDesc }}</span>
-                </el-option>
+                <el-option v-for="item in matchModeOptions" :key="item" :value="item" :label="item | matchModeFilter"/>
               </el-select>
             </el-form-item>
 
             <el-form-item label="消息类型" prop="messageType">
               <el-select v-model="form.messageType" multiple placeholder="请选择" class="filter-item">
-                <el-option v-for="item in messageTypeOptions" :key="item.code" :value="item.code" :label="item.name">
-                </el-option>
+                <el-option v-for="item in messageTypeOptions" :key="item" :value="item" :label="item | messageTypeFilter"/>
               </el-select>
             </el-form-item>
 
@@ -129,7 +124,7 @@
         <pagination v-show="!listLoading" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList"/>
 
         <el-dialog :title="dialogTypeMap[dialogType]" :visible.sync="dialogFormVisible">
-          <el-form :model="form" :rules="rules" label-width="100px" ref="form">
+          <el-form :model="form" :rules="formRules" label-width="100px" ref="form">
             <el-form-item label="规则名称" prop="ruleName">
               <el-input v-model="form.ruleName" placeholder="请输规则名称"/>
             </el-form-item>
@@ -216,7 +211,7 @@
         <pagination v-show="!listLoading" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList"/>
 
         <el-dialog :title="dialogTypeMap[dialogType]" :visible.sync="dialogFormVisible">
-          <el-form :model="form" :rules="rules" label-width="100px" ref="form">
+          <el-form :model="form" :rules="formRules" label-width="100px" ref="form">
             <el-form-item label="规则名称" prop="ruleName">
               <el-input v-model="form.ruleName" placeholder="请输规则名称"/>
             </el-form-item>
@@ -303,7 +298,7 @@
         <pagination v-show="!listLoading" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList"/>
 
         <el-dialog :title="dialogTypeMap[dialogType]" :visible.sync="dialogFormVisible">
-          <el-form :model="form" :rules="rules" label-width="100px" ref="form">
+          <el-form :model="form" :rules="formRules" label-width="100px" ref="form">
             <el-form-item label="规则名称" prop="ruleName">
               <el-input v-model="form.ruleName" placeholder="请输规则名称"/>
             </el-form-item>
@@ -404,6 +399,7 @@
           page: 1,
           limit: 20
         },
+
         form: {
           ruleName: undefined,
           keyword: undefined,
@@ -412,7 +408,7 @@
           textContent: undefined,
           isEnable: undefined
         },
-        rules: {
+        formRules: {
           ruleName: [
             {
               required: true,
@@ -445,40 +441,10 @@
             }
           ]
         },
-        matchModeOptions: [
-          {
-            code: 0,
-            name: "全匹配",
-            desc: "一字不差"
-          },
-          {
-            code: 1,
-            name: "半匹配",
-            desc: "包含即可"
-          }
-        ],
-        messageTypeOptions: [
-          {
-            code: 0,
-            name: "文本消息",
-          },
-          {
-            code: 1,
-            name: "图片消息",
-          },
-          {
-            code: 2,
-            name: "语音消息",
-          },
-          {
-            code: 3,
-            name: "视频消息",
-          },
-          {
-            code: 4,
-            name: "图文消息",
-          },
-        ],
+
+        matchModeOptions: [0,1],
+        messageTypeOptions: [0, 1, 2, 3, 4],
+
         dialogFormVisible: false,
         dialogType: "",
         dialogTypeMap: {
@@ -498,9 +464,6 @@
     },
 
     methods: {
-      handleTabClick(tab, event) {
-
-      },
       getList() {
         this.listLoading = true
         this.listQuery.isAsc = false
@@ -510,7 +473,6 @@
           this.listLoading = false
         })
       },
-
       create(formName) {
         const set = this.$refs
         this.form.roleIdList = this.role
@@ -551,6 +513,10 @@
       handleCurrentChange(val) {
         this.listQuery.page = val
         this.getList()
+      },
+
+      handleTabClick(tab, event) {
+
       },
 
       cancel(formName) {

@@ -129,7 +129,7 @@
           limit: 20,
           ascList: ['dic_code','value']
         },
-        rules: {
+        formRules: {
           value: [
             {
               required: true,

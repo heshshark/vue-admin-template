@@ -46,7 +46,7 @@
     <pagination v-show="!listLoading" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList"/>
 
     <el-dialog :title="dialogTypeMap[dialogType]" :visible.sync="dialogFormVisible">
-      <el-form :model="form" :rules="rules" ref="form" label-width="100px">
+      <el-form :model="form" :rules="formRules" ref="form" label-width="100px">
         <el-form-item label="规则名称" prop="ruleName">
           <el-input v-model="form.ruleName" placeholder="请输规则名称"/>
         </el-form-item>

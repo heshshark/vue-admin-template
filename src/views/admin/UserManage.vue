@@ -57,13 +57,13 @@
 
     <pagination v-show="!listLoading" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList"/>
 
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
+    <el-dialog :title="dialogTypeMap[dialogType]" :visible.sync="dialogFormVisible">
       <el-form :model="form" :rules="rules" ref="form" label-width="100px">
         <el-form-item label="用户名" prop="username">
           <el-input v-model="form.username" placeholder="请输用户名"></el-input>
         </el-form-item>
 
-        <el-form-item v-if="dialogStatus === 'create'" label="密码" placeholder="请输入密码" prop="newpassword1">
+        <el-form-item v-if="dialogType === 'create'" label="密码" placeholder="请输入密码" prop="newpassword1">
           <el-input type="password" v-model="form.newPassword"></el-input>
         </el-form-item>
 
@@ -80,7 +80,7 @@
           <el-input v-model="form.phone" placeholder="验证码登录使用"></el-input>
         </el-form-item>
 
-        <el-form-item v-if="dialogStatus === 'update' && sys_user_del" label="状态" prop="status">
+        <el-form-item v-if="dialogType === 'update' && sys_user_del" label="状态" prop="status">
           <el-select v-model="form.status" placeholder="请选择" class="filter-item">
             <el-option v-for="item in statusOptions" :key="item" :value="item" :label="item | statusFilter"></el-option>
           </el-select>
@@ -126,20 +126,18 @@
 
     data() {
       return {
-        treeDeptData: [],
-        checkedKeys: [],
-        defaultProps: {
-          children: "children",
-          label: "name"
-        },
-        list: null,
         total: 0,
+        list: null,
         listLoading: true,
         listQuery: {
           page: 1,
           limit: 20
         },
+
         role: [],
+        rolesOptions: [],
+
+        tableKey: 0,
         form: {
           username: undefined,
           newPassword: undefined,
@@ -147,7 +145,7 @@
           phone: undefined,
           roleIdList: undefined
         },
-        rules: {
+        formRules: {
           username: [
             {
               required: true,
@@ -202,24 +200,20 @@
             }
           ]
         },
+
         statusOptions: [0, 9],
-        rolesOptions: [],
-        dialogFormVisible: false,
-        dialogDeptVisible: false,
+
         userAdd: false,
         userUpd: false,
         userDel: false,
-        dialogStatus: "",
-        textMap: {
-          update: "编辑",
-          create: "创建"
+
+        dialogFormVisible: false,
+        dialogType: "",
+        dialogTypeMap: {
+          create: "创建",
+          update: "编辑"
         },
-        isDisabled: {
-          0: false,
-          1: true
-        },
-        tableKey: 0
-      };
+      }
     },
 
     computed: {
@@ -247,7 +241,6 @@
             this.listLoading = false
           })
       },
-
       create(formName) {
         const set = this.$refs
         this.form.roleIdList = this.role
@@ -268,7 +261,6 @@
           }
         })
       },
-
       remove(row) {
         this.$confirm(
           "此操作将永久删除该用户(用户名:" + row.username + "), 是否继续?",
@@ -299,7 +291,6 @@
             })
         })
       },
-
       update(formName) {
         const set = this.$refs
         this.form.role = this.role
@@ -323,31 +314,15 @@
         })
       },
 
-      handleFilter() {
-        this.listQuery.page = 1
-        this.getList()
-      },
-
-      handleSizeChange(val) {
-        this.listQuery.limit = val
-        this.getList()
-      },
-
-      handleCurrentChange(val) {
-        this.listQuery.page = val
-        this.getList()
-      },
-
       handleCreate() {
         this.resetTemp();
-        this.dialogStatus = "create"
+        this.dialogType = "create"
         this.dialogFormVisible = true
         this.role = []
         fetchAllRole().then(response => {
           this.rolesOptions = response.records
         })
       },
-
       handleUpdate(row) {
         getObj(row.id).then(response => {
           this.form = response
@@ -357,12 +332,11 @@
           }
           fetchAllRole().then(response => {
             this.rolesOptions = response.records
+            this.dialogType = "update"
             this.dialogFormVisible = true
-            this.dialogStatus = "update"
           });
         })
       },
-
       resetTemp() {
         this.form = {
           id: undefined,
@@ -373,6 +347,19 @@
           deptId: "",
           phone: ""
         }
+      },
+
+      handleFilter() {
+        this.listQuery.page = 1
+        this.getList()
+      },
+      handleSizeChange(val) {
+        this.listQuery.limit = val
+        this.getList()
+      },
+      handleCurrentChange(val) {
+        this.listQuery.page = val
+        this.getList()
       },
 
       cancel(formName) {
