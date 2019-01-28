@@ -88,7 +88,6 @@
         <el-button v-else type="primary" @click="update('form')">修 改</el-button>
       </div>
     </el-dialog>
-
   </div>
 </template>
 
@@ -219,12 +218,13 @@
         this.listQuery.page = val
         this.getList()
       },
+
       handleCreate() {
         this.dialogStatus = 'create'
         this.dialogFormVisible = true
       },
       handleDelete(row) {
-        delObj(row).then(response => {
+        delObj(row).then(() => {
           this.dialogFormVisible = false
           this.getList()
           this.$notify({
@@ -246,6 +246,7 @@
         this.form.sort = row.sort
         this.form.remarks = row.remarks
       },
+
       create(formName) {
         const set = this.$refs
         set[formName].validate(valid => {
@@ -264,11 +265,6 @@
             return false
           }
         })
-      },
-      cancel(formName) {
-        this.dialogFormVisible = false
-        const set = this.$refs
-        set[formName].resetFields()
       },
       update(formName) {
         const set = this.$refs
@@ -290,6 +286,11 @@
             return false
           }
         })
+      },
+      cancel(formName) {
+        this.dialogFormVisible = false
+        const set = this.$refs
+        set[formName].resetFields()
       }
     }
   }

@@ -53,27 +53,36 @@
         </template>
       </el-table-column>
 
+      <el-table-column align="center" label="操作" width="300">
+        <template slot-scope="scope">
+          <el-button v-if="scope.row.id !== 0" size="small" type="success" @click="handleUpdate(scope.row)">编辑</el-button>
+          <el-button size="small" type="success" @click="handleButtonEdit(scope.row)">配置按钮</el-button>
+          <el-button v-if="scope.row.id !== 0" size="small" type="danger" @click="remove(scope.row)">删除</el-button>
+        </template>
+      </el-table-column>
     </el-table>
 
     <pagination v-show="!listLoading" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList"/>
+
+    <el-dialog fullscreen :title="dialogTypeMap[dialogType]" :visible.sync="dialogFormVisible">
+      <menu-button-manage></menu-button-manage>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-  import {fetchMenuList,deply} from "@/api/wechat-mp"
+  import {fetchMenuList, deply} from "@/api/wechat-mp"
   import {mapGetters} from "vuex"
   import Waves from "@/directive/waves/index.js"
   import Pagination from '@/components/Pagination'
-  import ElRadioGroup from "element-ui/packages/radio/src/radio-group"
-  import ElOption from "element-ui/packages/select/src/option"
+  import MenuButtonManage from '@/views/wechat/MenuButtonManage'
 
   export default {
     name: "WechatMenuManage",
 
     components: {
-      ElOption,
-      ElRadioGroup,
-      Pagination
+      Pagination,
+      MenuButtonManage
     },
 
     directives: {
@@ -108,12 +117,15 @@
           page: 1,
           limit: 20
         },
+
         dialogFormVisible: false,
-        dialogStatus: "",
-        isDisabled: {
-          0: false,
-          1: true
+        dialogType: "",
+        dialogTypeMap: {
+          create: "创建",
+          update: "编辑",
+          buttonEdit: "编辑按钮"
         },
+
         tableKey: 0
       }
     },
@@ -156,6 +168,17 @@
             return false;
           }
         })
+      },
+      remove(row) {
+
+      },
+
+      handleUpdate(row) {
+
+      },
+      handleButtonEdit(row) {
+        this.dialogFormVisible = true
+        this.dialogType = 'buttonEdit'
       },
 
       handleFilter() {

@@ -1,6 +1,6 @@
 <template>
   <div class="app-container calendar-list-container">
-    <el-tabs @tab-click="handleTabClick">
+    <el-tabs active-name="first" @tab-click="handleTabClick">
       <el-tab-pane label="图文素材" name="first">
         <el-table :key='tableKey' :data="list" v-loading="listLoading" border fit highlight-current-row style="width: 99%">
           <el-table-column type="index" width="50"/>
@@ -11,21 +11,9 @@
             </template>
           </el-table-column>
 
-          <el-table-column align="center" label="关键字">
+          <el-table-column align="center" label="发布时间">
             <template slot-scope="scope">
-              <span>{{ scope.row.keyword }}</span>
-            </template>
-          </el-table-column>
-
-          <el-table-column align="center" label="匹配规则">
-            <template slot-scope="scope">
-              <span>{{ scope.row.matchMode | matchModeFilter }}</span>
-            </template>
-          </el-table-column>
-
-          <el-table-column align="center" label="回复消息类型">
-            <template slot-scope="scope">
-              <span>{{ scope.row.messageType | messageTypeFilter }}</span>
+              <span>{{ scope.row.gmtPublish }}</span>
             </template>
           </el-table-column>
 
@@ -442,7 +430,7 @@
           ]
         },
 
-        matchModeOptions: [0,1],
+        matchModeOptions: [0, 1],
         messageTypeOptions: [0, 1, 2, 3, 4],
 
         dialogFormVisible: false,

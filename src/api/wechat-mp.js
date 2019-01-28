@@ -13,6 +13,13 @@ export function fetchFansList(query) {
   })
 }
 
+export function syncFans() {
+  return request({
+    url: prefix + '/task/sync',
+    method: 'post'
+  })
+}
+
 /*
 粉丝标签
  */

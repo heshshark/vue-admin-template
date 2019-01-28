@@ -2,7 +2,9 @@
   <div class="app-container calendar-list-container">
     <div class="filter-container">
       <el-input v-model="listQuery.username" placeholder="用户名" @keyup.enter.native="handleFilter" style="width: 200px;" class="filter-item"></el-input>
-      <el-button class="filter-item" @click="handleFilter" type="primary" v-waves icon="search">搜索</el-button>
+      <el-button type="primary" icon="search" v-waves @click="handleFilter" class="filter-item">搜索</el-button>
+
+      <el-button type="primary" icon="sync" v-waves @click="handleSync" class="filter-item">同步</el-button>
     </div>
 
     <el-table :key='tableKey' :data="list" v-loading="listLoading" border fit highlight-current-row style="width: 99%">
@@ -68,7 +70,7 @@
 </template>
 
 <script>
-  import {fetchFansList} from "@/api/wechat-mp"
+  import {fetchFansList, syncFans} from "@/api/wechat-mp"
   import {mapGetters} from "vuex"
   import Waves from "@/directive/waves/index.js"
   import Pagination from '@/components/Pagination'
@@ -136,7 +138,6 @@
     methods: {
       getList() {
         this.listLoading = true
-        this.listQuery.isAsc = false
         fetchFansList(this.listQuery).then(response => {
           this.list = response.records
           this.total = response.total
@@ -144,37 +145,26 @@
         })
       },
 
-      create(formName) {
-        const set = this.$refs
-        this.form.roleIdList = this.role
-        set[formName].validate(valid => {
-          if (valid) {
-            addObj(this.form).then(() => {
-              this.dialogFormVisible = false
-              this.getList()
-              this.$notify({
-                title: "成功",
-                message: "创建成功",
-                type: "success",
-                duration: 2000
-              });
-            });
-          } else {
-            return false;
-          }
-        });
+      handleSync() {
+        this.listLoading = true
+        syncFans()
+          .then(() => {
+            this.listLoading = false
+            this.getList()
+          })
+          .catch(() => {
+            this.listLoading = false
+          })
       },
 
       handleFilter() {
         this.listQuery.page = 1
         this.getList()
       },
-
       handleSizeChange(val) {
         this.listQuery.limit = val
         this.getList()
       },
-
       handleCurrentChange(val) {
         this.listQuery.page = val
         this.getList()
