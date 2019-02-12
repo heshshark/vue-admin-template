@@ -2,26 +2,30 @@
   <div class="app-container calendar-list-container">
     <el-tabs active-name="first" @tab-click="handleTabClick">
       <el-tab-pane label="图文素材" name="first">
-        <el-table :key='tableKey' :data="list" v-loading="listLoading" border fit highlight-current-row style="width: 99%">
+        <el-table :key='tableKey' :data="newsList" v-loading="listLoading" border fit highlight-current-row style="width: 99%">
           <el-table-column type="index" width="50"/>
 
-          <el-table-column align="center" label="规则名称">
+          <el-table-column align="center" label="内容">
             <template slot-scope="scope">
-              <span>{{ scope.row.ruleName || '无' }}</span>
+              <div style="text-align:center">
+                <img :src="scope.row.content.articles[0].thumbUrl" width="150px" height="80px" style="float: left;vertical-align: middle;"/>
+                <div style="float: left;padding-left: 20px">
+                  <div v-for="item in scope.row.content.articles">{{ item.title }}</div>
+                </div>
+              </div>
             </template>
           </el-table-column>
 
-          <el-table-column align="center" label="发布时间">
+          <el-table-column align="center" width="200" label="更新时间">
             <template slot-scope="scope">
-              <span>{{ scope.row.gmtPublish }}</span>
+              <span>{{ scope.row.updateTime }}</span>
             </template>
           </el-table-column>
 
           <el-table-column align="center" label="操作" width="200">
             <template slot-scope="scope">
-              <el-button v-if="sys_user_upd" size="small" type="success" @click="handleUpdate(scope.row)">详情</el-button>
-              <el-button v-if="sys_user_del" size="small" type="danger" @click="handleUpdate(scope.row)">修改</el-button>
-              <el-button v-if="sys_user_del" size="small" type="danger" @click="remove(scope.row)">删除</el-button>
+              <el-button size="small" type="danger" @click="handleUpdate(scope.row)">编辑</el-button>
+              <el-button size="small" type="danger" @click="remove(scope.row)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -29,38 +33,6 @@
         <pagination v-show="!listLoading" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList"/>
 
         <el-dialog :title="dialogTypeMap[dialogType]" :visible.sync="dialogFormVisible">
-          <el-form :model="form" :rules="formRules" label-width="100px" ref="form">
-            <el-form-item label="规则名称" prop="ruleName">
-              <el-input v-model="form.ruleName" placeholder="请输规则名称"/>
-            </el-form-item>
-
-            <el-form-item label="关键字" prop="keyword" v-if="dialogType === 'create'">
-              <el-input type="text" v-model="form.keyword" placeholder="请输入关键字"/>
-            </el-form-item>
-
-            <el-form-item label="匹配模式" prop="matchMode">
-              <el-select v-model="role" multiple placeholder="请选择" class="filter-item" style="width: 300px">
-                <el-option v-for="item in matchModeOptions" :key="item" :value="item" :label="item | matchModeFilter"/>
-              </el-select>
-            </el-form-item>
-
-            <el-form-item label="消息类型" prop="messageType">
-              <el-select v-model="form.messageType" multiple placeholder="请选择" class="filter-item">
-                <el-option v-for="item in messageTypeOptions" :key="item" :value="item" :label="item | messageTypeFilter"/>
-              </el-select>
-            </el-form-item>
-
-            <el-form-item label="文本消息内容" prop="textContent" v-if="form.messageType === 0">
-              <el-input type="textarea" v-model="form.textContent" placeholder="请输入自动回复内容"/>
-            </el-form-item>
-
-            <el-form-item label="状态" prop="status" v-if="dialogType === 'update' && sys_user_del">
-              <el-select v-model="form.isEnable" placeholder="请选择" class="filter-item">
-                <el-option v-for="item in statusOptions" :key="item" :value="item" :label="item | statusFilter"></el-option>
-              </el-select>
-            </el-form-item>
-          </el-form>
-
           <div slot="footer" class="dialog-footer">
             <el-button @click="cancel('form')">取 消</el-button>
 
@@ -71,83 +43,24 @@
       </el-tab-pane>
 
       <el-tab-pane label="图片素材" name="second">
-        <el-table :key='tableKey' :data="list" v-loading="listLoading" border fit highlight-current-row style="width: 99%">
-          <el-table-column type="index" width="50">
-          </el-table-column>
-
-          <el-table-column align="center" label="规则名称">
-            <template slot-scope="scope">
-              <span>{{ scope.row.ruleName || '无' }}</span>
-            </template>
-          </el-table-column>
-
-          <el-table-column align="center" label="关键字">
-            <template slot-scope="scope">
-              <span>{{ scope.row.keyword }}</span>
-            </template>
-          </el-table-column>
-
-          <el-table-column align="center" label="匹配规则">
-            <template slot-scope="scope">
-              <span>{{ scope.row.matchMode | matchModeFilter }}</span>
-            </template>
-          </el-table-column>
-
-          <el-table-column align="center" label="回复消息类型">
-            <template slot-scope="scope">
-              <span>{{ scope.row.messageType | messageTypeFilter }}</span>
-            </template>
-          </el-table-column>
-
-          <el-table-column align="center" label="操作" width="200">
-            <template slot-scope="scope">
-              <el-button v-if="sys_user_upd" size="small" type="success" @click="handleUpdate(scope.row)">详情</el-button>
-              <el-button v-if="sys_user_del" size="small" type="danger" @click="handleUpdate(scope.row)">修改</el-button>
-              <el-button v-if="sys_user_del" size="small" type="danger" @click="remove(scope.row)">删除</el-button>
-            </template>
-          </el-table-column>
-
-        </el-table>
+        <el-row :gutter="20">
+          <el-col :span="8" v-for="item in imageMaterialList" :key="item">
+            <el-card :body-style="{ padding: '0px' }">
+              <img class="image">
+              <div style="padding: 14px;">
+                <span>{{ item.name }}</span>
+                <div class="bottom clearfix">
+                  <time class="time">{{ item.updateTime }}</time>
+                  <el-button type="danger">删除</el-button>
+                </div>
+              </div>
+            </el-card>
+          </el-col>
+        </el-row>
 
         <pagination v-show="!listLoading" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList"/>
 
         <el-dialog :title="dialogTypeMap[dialogType]" :visible.sync="dialogFormVisible">
-          <el-form :model="form" :rules="formRules" label-width="100px" ref="form">
-            <el-form-item label="规则名称" prop="ruleName">
-              <el-input v-model="form.ruleName" placeholder="请输规则名称"/>
-            </el-form-item>
-
-            <el-form-item label="关键字" prop="keyword" v-if="dialogType === 'create'">
-              <el-input type="text" v-model="form.keyword" placeholder="请输入关键字"/>
-            </el-form-item>
-
-            <el-form-item label="匹配模式" prop="matchMode">
-              <el-select v-model="role" multiple placeholder="请选择" class="filter-item" style="width: 300px">
-                <el-option v-for="item in matchModeOptions" :key="item.code" :value="item.code" :label="item.desc">
-                  <span style="float: left">{{ item.name }}</span>
-                  <span style="float: right; margin-right:30px; color: #8492a6; font-size: 13px">{{ item.roleDesc }}</span>
-                </el-option>
-              </el-select>
-            </el-form-item>
-
-            <el-form-item label="消息类型" prop="messageType">
-              <el-select v-model="form.messageType" multiple placeholder="请选择" class="filter-item">
-                <el-option v-for="item in messageTypeOptions" :key="item.code" :value="item.code" :label="item.name">
-                </el-option>
-              </el-select>
-            </el-form-item>
-
-            <el-form-item label="文本消息内容" prop="textContent" v-if="form.messageType === 0">
-              <el-input type="textarea" v-model="form.textContent" placeholder="请输入自动回复内容"/>
-            </el-form-item>
-
-            <el-form-item label="状态" prop="status" v-if="dialogType === 'update' && sys_user_del">
-              <el-select v-model="form.isEnable" placeholder="请选择" class="filter-item">
-                <el-option v-for="item in statusOptions" :key="item" :value="item" :label="item | statusFilter"></el-option>
-              </el-select>
-            </el-form-item>
-          </el-form>
-
           <div slot="footer" class="dialog-footer">
             <el-button @click="cancel('form')">取 消</el-button>
 
@@ -199,41 +112,6 @@
         <pagination v-show="!listLoading" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList"/>
 
         <el-dialog :title="dialogTypeMap[dialogType]" :visible.sync="dialogFormVisible">
-          <el-form :model="form" :rules="formRules" label-width="100px" ref="form">
-            <el-form-item label="规则名称" prop="ruleName">
-              <el-input v-model="form.ruleName" placeholder="请输规则名称"/>
-            </el-form-item>
-
-            <el-form-item label="关键字" prop="keyword" v-if="dialogType === 'create'">
-              <el-input type="text" v-model="form.keyword" placeholder="请输入关键字"/>
-            </el-form-item>
-
-            <el-form-item label="匹配模式" prop="matchMode">
-              <el-select v-model="role" multiple placeholder="请选择" class="filter-item" style="width: 300px">
-                <el-option v-for="item in matchModeOptions" :key="item.code" :value="item.code" :label="item.desc">
-                  <span style="float: left">{{ item.name }}</span>
-                  <span style="float: right; margin-right:30px; color: #8492a6; font-size: 13px">{{ item.roleDesc }}</span>
-                </el-option>
-              </el-select>
-            </el-form-item>
-
-            <el-form-item label="消息类型" prop="messageType">
-              <el-select v-model="form.messageType" multiple placeholder="请选择" class="filter-item">
-                <el-option v-for="item in messageTypeOptions" :key="item.code" :value="item.code" :label="item.name">
-                </el-option>
-              </el-select>
-            </el-form-item>
-
-            <el-form-item label="文本消息内容" prop="textContent" v-if="form.messageType === 0">
-              <el-input type="textarea" v-model="form.textContent" placeholder="请输入自动回复内容"/>
-            </el-form-item>
-
-            <el-form-item label="状态" prop="status" v-if="dialogType === 'update' && sys_user_del">
-              <el-select v-model="form.isEnable" placeholder="请选择" class="filter-item">
-                <el-option v-for="item in statusOptions" :key="item" :value="item" :label="item | statusFilter"></el-option>
-              </el-select>
-            </el-form-item>
-          </el-form>
 
           <div slot="footer" class="dialog-footer">
             <el-button @click="cancel('form')">取 消</el-button>
@@ -286,41 +164,6 @@
         <pagination v-show="!listLoading" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList"/>
 
         <el-dialog :title="dialogTypeMap[dialogType]" :visible.sync="dialogFormVisible">
-          <el-form :model="form" :rules="formRules" label-width="100px" ref="form">
-            <el-form-item label="规则名称" prop="ruleName">
-              <el-input v-model="form.ruleName" placeholder="请输规则名称"/>
-            </el-form-item>
-
-            <el-form-item label="关键字" prop="keyword" v-if="dialogType === 'create'">
-              <el-input type="text" v-model="form.keyword" placeholder="请输入关键字"/>
-            </el-form-item>
-
-            <el-form-item label="匹配模式" prop="matchMode">
-              <el-select v-model="role" multiple placeholder="请选择" class="filter-item" style="width: 300px">
-                <el-option v-for="item in matchModeOptions" :key="item.code" :value="item.code" :label="item.desc">
-                  <span style="float: left">{{ item.name }}</span>
-                  <span style="float: right; margin-right:30px; color: #8492a6; font-size: 13px">{{ item.roleDesc }}</span>
-                </el-option>
-              </el-select>
-            </el-form-item>
-
-            <el-form-item label="消息类型" prop="messageType">
-              <el-select v-model="form.messageType" multiple placeholder="请选择" class="filter-item">
-                <el-option v-for="item in messageTypeOptions" :key="item.code" :value="item.code" :label="item.name">
-                </el-option>
-              </el-select>
-            </el-form-item>
-
-            <el-form-item label="文本消息内容" prop="textContent" v-if="form.messageType === 0">
-              <el-input type="textarea" v-model="form.textContent" placeholder="请输入自动回复内容"/>
-            </el-form-item>
-
-            <el-form-item label="状态" prop="status" v-if="dialogType === 'update' && sys_user_del">
-              <el-select v-model="form.isEnable" placeholder="请选择" class="filter-item">
-                <el-option v-for="item in statusOptions" :key="item" :value="item" :label="item | statusFilter"></el-option>
-              </el-select>
-            </el-form-item>
-          </el-form>
 
           <div slot="footer" class="dialog-footer">
             <el-button @click="cancel('form')">取 消</el-button>
@@ -380,7 +223,18 @@
 
     data() {
       return {
-        list: null,
+        newsList: [{
+          content: {
+            articles: [
+              {title: "标题1", thumbUrl: "https://cn.vuejs.org/images/logo.png"},
+              {title: "标题2"},
+              {title: "标题3"},
+              {title: "标题4"},
+              {title: "标题5"},
+            ]
+          },
+          updateTime: "2019-02-12 11:00:00"
+        }],
         total: 0,
         listLoading: true,
         listQuery: {
@@ -454,7 +308,6 @@
     methods: {
       getList() {
         this.listLoading = true
-        this.listQuery.isAsc = false
         fetchKeywordList(this.listQuery).then(response => {
           this.list = response.records
           this.total = response.total
@@ -514,3 +367,10 @@
     }
   }
 </script>
+
+<style lang="scss">
+  .image {
+    width: 100%;
+    display: block;
+  }
+</style>
