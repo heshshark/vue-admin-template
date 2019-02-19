@@ -3,9 +3,10 @@
     <div class="filter-container">
       <el-input v-model="listQuery.username" placeholder="用户名" @keyup.enter.native="handleFilter" style="width: 200px;" class="filter-item"></el-input>
       <el-button type="primary" icon="search" v-waves @click="handleFilter" class="filter-item">搜索</el-button>
+      <el-button type="primary" icon="add" v-waves @click="handleCreate" class="filter-item">新增</el-button>
     </div>
 
-    <el-table :key='tableKey' :data="list" v-loading="listLoading" border fit highlight-current-row style="width: 99%">
+    <el-table :data="list" v-loading="listLoading" border fit highlight-current-row style="width: 99%">
       <el-table-column type="index" width="50">
       </el-table-column>
 
@@ -21,14 +22,36 @@
         </template>
       </el-table-column>
 
+      <el-table-column align="center" label="操作" width="300">
+        <template slot-scope="scope">
+          <el-button size="small" type="default" @click="handleDetail(scope.row)">详情</el-button>
+          <el-button size="small" type="success" @click="handleUpdate(scope.row)">编辑</el-button>
+          <el-button size="small" type="danger" @click="remove(scope.row)">删除</el-button>
+        </template>
+      </el-table-column>
     </el-table>
 
     <pagination v-show="!listLoading" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList"/>
+
+    <el-dialog :title="dialogTypeMap[dialogType]" :visible.sync="dialogFormVisible">
+      <el-form :model="form" :rules="formRules" label-width="100px" ref="form">
+        <el-form-item label="标签名称" prop="tagName">
+          <el-input v-model="form.tagName" placeholder="请输标签名称"/>
+        </el-form-item>
+      </el-form>
+
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="cancel('form')">取 消</el-button>
+
+        <el-button v-if="dialogType === 'create'" type="primary" @click="create('form')">确 定</el-button>
+        <el-button v-else type="primary" @click="update('form')">修 改</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-  import {addFansTag, fetchFansTagList} from "@/api/wechat-mp"
+  import {addFansTag, updateFansTag, deleteFansTag, getFansTag, fetchFansTagList} from "@/api/wechat-mp"
   import {mapGetters} from "vuex"
   import Waves from "@/directive/waves/index.js"
   import Pagination from '@/components/Pagination'
@@ -50,12 +73,6 @@
 
     data() {
       return {
-        treeDeptData: [],
-        checkedKeys: [],
-        defaultProps: {
-          children: "children",
-          label: "name"
-        },
         list: null,
         total: 0,
         listLoading: true,
@@ -63,15 +80,32 @@
           page: 1,
           limit: 20
         },
-        statusOptions: [0, 1],
-        dialogFormVisible: false,
-        dialogDeptVisible: false,
-        dialogStatus: "",
-        isDisabled: {
-          0: false,
-          1: true
+
+        form: {
+          tagName: undefined,
         },
-        tableKey: 0
+        formRules: {
+          tagName: [
+            {
+              required: true,
+              message: "请输入标签名称",
+              trigger: "blur"
+            },
+            {
+              min: 1,
+              max: 12,
+              message: "长度在 1 到 12 个字符",
+              trigger: "blur"
+            }
+          ],
+        },
+
+        dialogFormVisible: false,
+        dialogType: "create",
+        dialogTypeMap: {
+          "create": "新建标签",
+          "update": "修改标签"
+        }
       };
     },
 
@@ -86,17 +120,14 @@
     methods: {
       getList() {
         this.listLoading = true
-        this.listQuery.isAsc = false
         fetchFansTagList(this.listQuery).then(response => {
           this.list = response.records
           this.total = response.total
           this.listLoading = false
         })
       },
-
       create(formName) {
         const set = this.$refs
-        this.form.roleIdList = this.role
         set[formName].validate(valid => {
           if (valid) {
             addFansTag(this.form).then(() => {
@@ -114,17 +145,77 @@
           }
         });
       },
+      remove(row) {
+        this.$confirm(
+          "此操作将永久删除该标签:" + row.tagName + ", 是否继续?",
+          "提示",
+          {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning"
+          }
+        ).then(() => {
+          deleteFansTag(row.id)
+            .then(() => {
+              this.getList()
+              this.$notify({
+                title: "成功",
+                message: "删除成功",
+                type: "success",
+                duration: 2000
+              })
+            })
+            .cache(() => {
+              this.$notify({
+                title: "失败",
+                message: "删除失败",
+                type: "error",
+                duration: 2000
+              })
+            })
+        })
+      },
+      update(formName) {
+        const set = this.$refs
+        set[formName].validate(valid => {
+          if (valid) {
+            this.dialogFormVisible = false
+            updateFansTag(this.form).then(() => {
+              this.dialogFormVisible = false
+              this.getList()
+              this.$notify({
+                title: "成功",
+                message: "修改成功",
+                type: "success",
+                duration: 2000
+              })
+            })
+          } else {
+            return false;
+          }
+        })
+      },
+
+      handleCreate() {
+        this.dialogFormVisible = true
+        this.dialogType = "create"
+      },
+      handleUpdate(row) {
+        getFansTag(row.id).then(response => {
+          this.form = response
+          this.dialogFormVisible = true
+          this.dialogType = "update"
+        })
+      },
 
       handleFilter() {
         this.listQuery.page = 1
         this.getList()
       },
-
       handleSizeChange(val) {
         this.listQuery.limit = val
         this.getList()
       },
-
       handleCurrentChange(val) {
         this.listQuery.page = val
         this.getList()

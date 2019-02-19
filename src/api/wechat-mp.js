@@ -31,11 +31,18 @@ export function fetchFansTagList(query) {
   })
 }
 
+export function getFansTag(fansTagId) {
+  return request({
+    url: prefix + '/fansTags/'+fansTagId,
+    method: 'get'
+  })
+}
+
 export function addFansTag(tag) {
   return request({
     url: prefix + '/fansTags',
     method: 'post',
-    data: query
+    data: tag
   })
 }
 
@@ -43,7 +50,14 @@ export function updateFansTag(tag) {
   return request({
     url: prefix + '/fansTags',
     method: 'put',
-    data: query
+    data: tag
+  })
+}
+
+export function deleteFansTag(tagId) {
+  return request({
+    url: prefix + '/fansTags/'+tagId,
+    method: 'delete'
   })
 }
 
@@ -55,6 +69,13 @@ export function fetchMenuList(query) {
     url: prefix + '/menus/queries',
     method: 'post',
     data: query
+  })
+}
+
+export function publishMenu(menuId) {
+  return request({
+    url: prefix + '/menus/publish/'+menuId,
+    method: 'put'
   })
 }
 

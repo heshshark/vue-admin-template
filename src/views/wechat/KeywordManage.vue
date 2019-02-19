@@ -256,7 +256,7 @@
       },
       remove(row) {
         this.$confirm(
-          "此操作将永久删除该关键字(用户名:" + row.keyword + "), 是否继续?",
+          "此操作将永久删除该关键字:" + row.keyword + ", 是否继续?",
           "提示",
           {
             confirmButtonText: "确定",

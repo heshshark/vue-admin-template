@@ -62,7 +62,6 @@
           <el-tag>{{scope.row.isSubscribe | statusFilter}}</el-tag>
         </template>
       </el-table-column>
-
     </el-table>
 
     <pagination v-show="!listLoading" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList"/>
@@ -138,11 +137,15 @@
     methods: {
       getList() {
         this.listLoading = true
-        fetchFansList(this.listQuery).then(response => {
-          this.list = response.records
-          this.total = response.total
-          this.listLoading = false
-        })
+        fetchFansList(this.listQuery)
+          .then(response => {
+            this.list = response.records
+            this.total = response.total
+            this.listLoading = false
+          })
+          .catch(() => {
+            this.listLoading = false
+          })
       },
 
       handleSync() {

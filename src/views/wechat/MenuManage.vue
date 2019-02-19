@@ -71,7 +71,7 @@
 </template>
 
 <script>
-  import {fetchMenuList, deply} from "@/api/wechat-mp"
+  import {fetchMenuList, publishMenu} from "@/api/wechat-mp"
   import {mapGetters} from "vuex"
   import Waves from "@/directive/waves/index.js"
   import Pagination from '@/components/Pagination'
