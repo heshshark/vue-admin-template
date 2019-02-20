@@ -97,7 +97,7 @@ export function addWechatMenu(tag) {
   return request({
     url: prefix + '/menus',
     method: 'post',
-    data: query
+    data: tag
   })
 }
 
@@ -116,6 +116,13 @@ export function fetchMenuButtonList(query) {
     url: prefix + '/menuButtons/queries',
     method: 'post',
     data: query
+  })
+}
+
+export function fetchMenuButtonTree(menuId) {
+  return request({
+    url: prefix + '/menuButtons/tree/'+menuId,
+    method: 'get'
   })
 }
 
@@ -143,41 +150,41 @@ export function updateMenuButton(button) {
 }
 
 /*
-文章
+素材管理
  */
-export function fetchArticleList(query) {
+export function fetchMaterialList(query) {
   return request({
-    url: prefix + '/keywords/queries',
+    url: prefix + '/material/queries',
     method: 'post',
     data: query
   })
 }
 
-export function getArticle(articlesId) {
+export function getMaterial(articlesId) {
   return request({
-    url: prefix + '/articles/' + articlesId,
+    url: prefix + '/material/' + articlesId,
     method: 'get'
   })
 }
 
-export function addArticle(article) {
+export function addMaterial(article) {
   return request({
-    url: prefix + '/articles/',
+    url: prefix + '/material/',
     method: 'post',
     data: article
   })
 }
 
-export function deleteArticle(articleId) {
+export function deleteMaterial(articleId) {
   return request({
-    url: prefix + '/articles/' + articleId,
+    url: prefix + '/material/' + articleId,
     method: 'delete'
   })
 }
 
-export function updateArticle(article) {
+export function updateMaterial(article) {
   return request({
-    url: prefix + '/articles/',
+    url: prefix + '/material/',
     method: 'patch',
     data: article
   })

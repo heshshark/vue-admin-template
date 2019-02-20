@@ -7,7 +7,7 @@
       <el-button class="filter-item" @click="handleFilter" type="primary" v-waves icon="search">搜索</el-button>
     </div>
 
-    <el-table :key='tableKey' :data="list" v-loading="listLoading" border fit highlight-current-row style="width: 99%">
+    <el-table :key='tableKey' :data="list" :span-method="defaultMenuSpanMethod" v-loading="listLoading" border fit highlight-current-row style="width: 99%">
       <el-table-column type="index" width="50">
       </el-table-column>
 
@@ -57,6 +57,7 @@
         <template slot-scope="scope">
           <el-button v-if="scope.row.id !== 0" size="small" type="success" @click="handleUpdate(scope.row)">编辑</el-button>
           <el-button size="small" type="success" @click="handleButtonEdit(scope.row)">配置按钮</el-button>
+          <el-button v-if="scope.row.menuId == null" size="small" type="success" @click="handlePublish(scope.row.id)">发布</el-button>
           <el-button v-if="scope.row.id !== 0" size="small" type="danger" @click="remove(scope.row)">删除</el-button>
         </template>
       </el-table-column>
@@ -65,13 +66,13 @@
     <pagination v-show="!listLoading" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList"/>
 
     <el-dialog fullscreen :title="dialogTypeMap[dialogType]" :visible.sync="dialogFormVisible">
-      <menu-button-manage></menu-button-manage>
+      <menu-button-manage :menuId="this.menuRuleId" @success="closeDialog"></menu-button-manage>
     </el-dialog>
   </div>
 </template>
 
 <script>
-  import {fetchMenuList, publishMenu} from "@/api/wechat-mp"
+  import {addWechatMenu, fetchMenuList, publishMenu} from "@/api/wechat-mp"
   import {mapGetters} from "vuex"
   import Waves from "@/directive/waves/index.js"
   import Pagination from '@/components/Pagination'
@@ -110,6 +111,8 @@
 
     data() {
       return {
+        menuRuleId: null,
+
         list: null,
         total: 0,
         listLoading: true,
@@ -154,7 +157,7 @@
         this.form.roleIdList = this.role
         set[formName].validate(valid => {
           if (valid) {
-            addObj(this.form).then(() => {
+            addWechatMenu(this.form).then(() => {
               this.dialogFormVisible = false
               this.getList()
               this.$notify({
@@ -173,12 +176,19 @@
 
       },
 
+      handlePublish(menuRuleId) {
+        publishMenu(menuRuleId).then(() => {
+          this.getList()
+        })
+      },
+
       handleUpdate(row) {
 
       },
       handleButtonEdit(row) {
         this.dialogFormVisible = true
         this.dialogType = 'buttonEdit'
+        this.menuRuleId = row.id;
       },
 
       handleFilter() {
@@ -194,10 +204,23 @@
         this.getList()
       },
 
+      closeDialog() {
+        this.dialogFormVisible = false
+      },
       cancel(formName) {
         this.dialogFormVisible = false
         this.$refs[formName].resetFields()
+      },
+
+      defaultMenuSpanMethod({row, column, rowIndex, columnIndex}) {
+        if (rowIndex === 0 && columnIndex === 1) {
+          return {
+            rowspan: 1,
+            colspan: 1
+          }
+        }
       }
+
     }
   }
 </script>

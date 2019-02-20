@@ -93,7 +93,7 @@
 </template>
 
 <script>
-  import {fetchArticleList, getArticle, addArticle, deleteArticle, updateArticle} from "@/api/wechat-mp"
+  import {fetchMaterialList, getMaterial, addMaterial, deleteMaterial, updateMaterial} from "@/api/wechat-mp"
   import {mapGetters} from "vuex"
   import Waves from "@/directive/waves/index.js"
   import Pagination from '@/components/Pagination'
@@ -220,7 +220,7 @@
       getList() {
         this.listLoading = true
         this.listQuery.isAsc = false
-        fetchArticleList(this.listQuery).then(response => {
+        fetchMaterialList(this.listQuery).then(response => {
           this.list = response.records
           this.total = response.total
           this.listLoading = false
@@ -232,7 +232,7 @@
         this.form.roleIdList = this.role
         set[formName].validate(valid => {
           if (valid) {
-            addArticle(this.form).then(() => {
+            addMaterial(this.form).then(() => {
               this.dialogFormVisible = false
               this.getList()
               this.$notify({
@@ -253,14 +253,14 @@
         this.dialogType = "update"
       },
       handleUpdate(row) {
-        getArticle(row.id).then(response => {
+        getMaterial(row.id).then(response => {
           this.form = response
           this.dialogFormVisible = true
           this.dialogType = "update"
         })
       },
       handleDetail(row) {
-        getArticle(row.id).then(response => {
+        getMaterial(row.id).then(response => {
           this.form = response
           this.dialogFormVisible = true
           this.dialogType = "detail"
