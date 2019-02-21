@@ -252,6 +252,7 @@
             type: 'success',
             duration: 2000
           })
+          this.formEdit = true
         })
       },
       resetForm() {

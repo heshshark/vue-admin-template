@@ -58,7 +58,7 @@
     <pagination v-show="!listLoading" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList"/>
 
     <el-dialog :title="dialogTypeMap[dialogType]" :visible.sync="dialogFormVisible">
-      <el-form :model="form" :rules="rules" ref="form" label-width="100px">
+      <el-form :model="form" :rules="formRules" ref="form" label-width="100px">
         <el-form-item label="用户名" prop="username">
           <el-input v-model="form.username" placeholder="请输用户名"></el-input>
         </el-form-item>
@@ -88,7 +88,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="cancel('form')">取 消</el-button>
-        <el-button v-if="dialogStatus === 'create'" type="primary" @click="create('form')">确 定</el-button>
+        <el-button v-if="dialogType === 'create'" type="primary" @click="create('form')">确 定</el-button>
         <el-button v-else type="primary" @click="update('form')">修 改</el-button>
       </div>
     </el-dialog>

@@ -20,88 +20,72 @@
         <!-- 一级菜单加号 -->
         <div class="menu-bottom menu-add-icon" v-if="menuKeyLength < 3" @click="handleMenuAdd"><i class="el-icon-plus"></i></div>
       </div>
-      <el-button class="save_btn" type="success" @click="handleSaveMenuButtons">保存至菜单</el-button>
+      <el-button class="save-btn" type="success" @click="handleSaveMenuButtons">保存至菜单</el-button>
+      <el-button class="cancel-btn" type="default" @click="handleCancel()">取消</el-button>
     </div>
     <!--右边配置-->
     <div v-if="!showRightFlag" class="right">
-      <div class="configure-page">
-        <div class="delete-btn">
-          <el-button size="mini" type="danger" icon="el-icon-delete" @click="handleDeleteMenuButton(tempObj)">删除当前菜单</el-button>
-        </div>
+      <el-form :model="tempObj" :rules="formRules" label-width="150px" ref="form">
+        <el-form-item label="菜单名称" prop="name">
+          <el-input v-model="tempObj.name" placeholder="请输入菜单名称" clearable></el-input>
+          <el-button type="danger" icon="el-icon-delete" @click="handleDeleteMenuButton(tempObj)">删除</el-button>
+        </el-form-item>
 
-        <div>
-          <span>菜单名称：</span>
-          <el-input class="input-width" v-model="tempObj.name" placeholder="请输入菜单名称" clearable></el-input>
-        </div>
+        <el-form-item label="菜单类型" prop="type">
+          <el-radio-group v-model="tempObj.type">
+            <el-radio :label="'media_id'">发送素材</el-radio>
+            <el-radio :label="'view'">跳转链接</el-radio>
+            <el-radio :label="'click'">发送关键词</el-radio>
+            <el-radio :label="'miniprogram'">小程序</el-radio>
+          </el-radio-group>
+        </el-form-item>
 
-        <div>
-          <div class="menu-content">
-            <span>菜单内容：</span>
-            <el-radio-group v-model="tempObj.type">
-              <el-radio :label="'media_id'">发送素材</el-radio>
-              <el-radio :label="'view'">跳转链接</el-radio>
-              <el-radio :label="'click'">发送关键词</el-radio>
-              <el-radio :label="'miniprogram'">小程序</el-radio>
-            </el-radio-group>
-          </div>
-          <div class="configure-content">
-            <div class="material" v-if="tempObj.type === 'media_id'">
-              <span>素材内容：</span>
-              <el-input class="input-width" v-model="tempObj.mediaId" placeholder="素材名称" :disabled="true"></el-input>
-              <!--下面点击“选择素材”按钮，弹框框-->
-              <el-popover
-                placement="left"
-                width="700"
-                v-model="materialDialogVisible">
-                <el-table :data="materialList" style="width: 100%">
-                  <el-table-column label="文件名" width="600">
-                    <template slot-scope="scope">
-                      <el-popover trigger="hover" placement="top">
-                        <p>文件名: {{ scope.row.name }}</p>
-                        <div slot="reference" class="name-wrapper">
-                          <el-tag size="medium">{{ scope.row.name }}</el-tag>
-                        </div>
-                      </el-popover>
-                    </template>
-                  </el-table-column>
-                  <el-table-column label="操作">
-                    <template slot-scope="scope">
-                      <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">选择</el-button>
-                    </template>
-                  </el-table-column>
-                </el-table>
+        <el-form-item v-if="tempObj.type === 'media_id'" label="素材" prop="mediaId">
+          <el-input v-model="tempObj.mediaId" placeholder="素材名称" :disabled="true"></el-input>
+          <!--下面点击“选择素材”按钮，弹框框-->
+          <el-popover
+            placement="left"
+            width="600"
+            v-model="materialDialogVisible">
+            <el-table :data="materialList" style="width: 100%">
+              <el-table-column label="文件名" width="450">
+                <template slot-scope="scope">
+                  <el-popover trigger="hover" placement="top">
+                    <p>文件名: {{ scope.row.name }}</p>
+                    <div slot="reference" class="name-wrapper">
+                      <el-tag size="medium">{{ scope.row.name }}</el-tag>
+                    </div>
+                  </el-popover>
+                </template>
+              </el-table-column>
+              <el-table-column label="">
+                <template slot-scope="scope">
+                  <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">选择</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
 
-                <el-button slot="reference" type="success">选择素材</el-button>
-              </el-popover>
+            <el-button slot="reference" type="success">选择素材</el-button>
+          </el-popover>
+        </el-form-item>
 
-              <p class="blue">tips:需要调后台获取到内容，弹框出来，然后选择，把名字赋值上去！</p>
-            </div>
-            <div v-if="tempObj.type === 'view'">
-              <span>跳转链接：</span>
-              <el-input class="input-width" v-model="tempObj.url" placeholder="请输入链接" clearable></el-input>
-            </div>
-            <div v-if="tempObj.type === 'click'">
-              <div>
-                <span>关键词：</span>
-                <el-input class="input-width" v-model="tempObj.key" placeholder="请输入关键词" clearable></el-input>
-              </div>
-              <p class="blue">tips:这里需要配合关键词推送消息一起使用</p>
-            </div>
-            <div v-if="tempObj.type === 'miniprogram'">
-              <div class="applet">
-                <span>小程序的appId：</span>
-                <el-input class="input-width" v-model="tempObj.appId" placeholder="请输入小程序的appid" clearable></el-input>
-              </div>
-              <div>
-                <span>小程序的页面路径：</span>
-                <el-input class="input-width" v-model="tempObj.pagePath" placeholder="请输入小程序的页面路径，如：pages/index" clearable></el-input>
-              </div>
-              <p class="blue">tips:需要和公众号进行关联才可以把小程序绑定带微信菜单上哟！</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div>menu对象值：{{ menu }}</div>
+        <el-form-item v-if="tempObj.type === 'view'" label="跳转链接" prop="url">
+          <el-input v-model="tempObj.url" placeholder="请输入链接" clearable></el-input>
+        </el-form-item>
+
+        <el-form-item v-if="tempObj.type === 'click'" label="关键词" prop="key">
+          <el-input v-model="tempObj.key" placeholder="请输入关键词" clearable></el-input>
+        </el-form-item>
+
+        <el-form-item v-if="tempObj.type === 'miniprogram'" label="小程序的appId" prop="appId">
+          <el-input v-model="tempObj.appId" placeholder="请输入小程序的appId" clearable></el-input>
+        </el-form-item>
+
+        <el-form-item v-if="tempObj.type === 'miniprogram'" label="小程序的页面路径" prop="pagePath">
+          <el-input v-model="tempObj.pagePath" placeholder="请输入小程序的页面路径，如：pages/index" clearable></el-input>
+          <p class="blue">tips:需要和公众号进行关联才可以把小程序绑定带微信菜单上哟！</p>
+        </el-form-item>
+      </el-form>
     </div>
     <!--一进页面就显示的默认页面，当点击左边按钮的时候，就不显示了-->
     <div v-if="showRightFlag" class="right">
@@ -180,6 +164,64 @@
           // secondIndex:"" 表示二级菜单索引
         },
 
+        formRules: {
+          name: [
+            {
+              required: true,
+              message: "菜单名称不能为空",
+              trigger: "blur"
+            },
+            {
+              min: 1,
+              max: 20,
+              message: "长度在 1~20 个字符",
+              trigger: "blur"
+            }
+          ],
+          type: [
+            {
+              required: true,
+              message: "请选择菜单点击类型",
+              trigger: "blur"
+            }
+          ],
+          mediaId: [
+            {
+              required: true,
+              message: "素材不能为空",
+              trigger: "blur"
+            }
+          ],
+          url: [
+            {
+              required: true,
+              message: "链接不能为空",
+              trigger: "blur"
+            }
+          ],
+          key: [
+            {
+              required: true,
+              message: "关键词不能为空",
+              trigger: "blur"
+            }
+          ],
+          appId: [
+            {
+              required: true,
+              message: "小程序ID不能为空",
+              trigger: "blur"
+            }
+          ],
+          pagePath: [
+            {
+              required: true,
+              message: "小程序路径不能为空",
+              trigger: "blur"
+            }
+          ]
+        },
+
         materialDialogVisible: false,//素材内容  "选择素材"按钮弹框显示隐藏
         materialList: [] //素材列表弹框数据
       }
@@ -211,103 +253,137 @@
       },
 
       handleSaveMenuButtons() {
-        this.menu.buttons.map(value => {
-          value.ruleId = this.menuId
-          value.subButtons.map(value1 => {
-            value1.ruleId = this.menuId
-          })
+        this.$refs['form'].validate(valid => {
+          if (valid) {
+            addMenuButton(this.menu)
+              .then(() => {
+                this.$message({
+                  type: 'success',
+                  message: '保存菜单成功!'
+                })
+                this.closeSelf()
+              })
+          }
         })
-        console.log(this.menu)
+      },
+      handleCancel() {
         this.closeSelf()
-        /*addMenuButton(this.menu)
-          .then(() => {
-            this.$message({
-              type: 'success',
-              message: '新增成功!'
-            })
-
-            closeSelf()
-          })*/
       },
       // 一级菜单点击事件
       handleMenuClick(i, item) {
-        this.showRightFlag = false;//右边菜单隐藏
-        this.tempObj = item;//这个如果放在顶部，flag会没有。因为重新赋值了。
-        this.tempSelfObj.grand = "1";//表示一级菜单
-        this.tempSelfObj.index = i;//表示一级菜单索引
-        this.isActive = i; //一级菜单选中样式
-        this.isSubMenuFlag = i; //二级菜单显示标志
-        this.isSubMenuActive = -1; //二级菜单去除选中样式
+        if (!this.showRightFlag) {
+          this.$refs['form'].validate(valid => {
+            if (valid) {
+              this.showRightFlag = false;//右边菜单隐藏
+              this.tempObj = item;//这个如果放在顶部，flag会没有。因为重新赋值了。
+              this.tempSelfObj.grand = "1";//表示一级菜单
+              this.tempSelfObj.index = i;//表示一级菜单索引
+              this.isActive = i; //一级菜单选中样式
+              this.isSubMenuFlag = i; //二级菜单显示标志
+              this.isSubMenuActive = -1; //二级菜单去除选中样式
+            }
+          })
+        } else {
+          this.showRightFlag = false;//右边菜单隐藏
+          this.tempObj = item;//这个如果放在顶部，flag会没有。因为重新赋值了。
+          this.tempSelfObj.grand = "1";//表示一级菜单
+          this.tempSelfObj.index = i;//表示一级菜单索引
+          this.isActive = i; //一级菜单选中样式
+          this.isSubMenuFlag = i; //二级菜单显示标志
+          this.isSubMenuActive = -1; //二级菜单去除选中样式
+        }
       },
       // 二级菜单点击事件
       handleSubMenuClick(item, subItem, index, k) {
-        this.showRightFlag = false;//右边菜单隐藏
-        this.tempObj = subItem;//将点击的数据放到临时变量，对象有引用作用
-        this.tempSelfObj.grand = "2";//表示二级菜单
-        this.tempSelfObj.index = index;//表示一级菜单索引
-        this.tempSelfObj.secondIndex = k;//表示二级菜单索引
-        this.isSubMenuActive = index + "" + k; //二级菜单选中样式
-        this.isActive = -1;//一级菜单去除样式
+        if (!this.showRightFlag) {
+          this.$refs['form'].validate(valid => {
+            if (valid) {
+              this.showRightFlag = false;//右边菜单隐藏
+              this.tempObj = subItem;//将点击的数据放到临时变量，对象有引用作用
+              this.tempSelfObj.grand = "2";//表示二级菜单
+              this.tempSelfObj.index = index;//表示一级菜单索引
+              this.tempSelfObj.secondIndex = k;//表示二级菜单索引
+              this.isSubMenuActive = index + "" + k; //二级菜单选中样式
+              this.isActive = -1;//一级菜单去除样式
+            }
+          })
+        } else {
+          this.showRightFlag = false;//右边菜单隐藏
+          this.tempObj = subItem;//将点击的数据放到临时变量，对象有引用作用
+          this.tempSelfObj.grand = "2";//表示二级菜单
+          this.tempSelfObj.index = index;//表示一级菜单索引
+          this.tempSelfObj.secondIndex = k;//表示二级菜单索引
+          this.isSubMenuActive = index + "" + k; //二级菜单选中样式
+          this.isActive = -1;//一级菜单去除样式
+        }
       },
 
       // 添加横向一级菜单
       handleMenuAdd() {
-        // 先判断1，再判断2,对象增加，会进行往下计算，所以必须先判断2，再判断1
-        if (this.menuKeyLength === 2) {
-          this.$set(this.menu.buttons, "2",
-            {
-              name: "菜单3",
-              subButtons: []
+        this.$refs['form'].validate(valid => {
+          if (valid) {
+            // 先判断1，再判断2,对象增加，会进行往下计算，所以必须先判断2，再判断1
+            if (this.menuKeyLength === 2) {
+              this.$set(this.menu.buttons, "2",
+                {
+                  name: "菜单3",
+                  subButtons: []
+                }
+              );
             }
-          );
-        }
-        if (this.menuKeyLength === 1) {
-          this.$set(this.menu.buttons, "1",
-            {
-              name: "菜单2",
-              subButtons: []
+            if (this.menuKeyLength === 1) {
+              this.$set(this.menu.buttons, "1",
+                {
+                  name: "菜单2",
+                  subButtons: []
+                }
+              );
             }
-          );
-        }
+          }
+        })
       },
       // 添加横向二级菜单
       handleSubMenuAdd(item) {
-        let subMenuKeyLength = item.subButtons.length;//获取二级菜单key长度
-        if (subMenuKeyLength === 4) {
-          this.$set(item.subButtons, "4",
-            {
-              name: "子菜单5"
+        this.$refs['form'].validate(valid => {
+          if (valid) {
+            let subMenuKeyLength = item.subButtons.length;//获取二级菜单key长度
+            if (subMenuKeyLength === 4) {
+              this.$set(item.subButtons, "4",
+                {
+                  name: "子菜单5"
+                }
+              );
             }
-          );
-        }
-        if (subMenuKeyLength === 3) {
-          this.$set(item.subButtons, "3",
-            {
-              name: "子菜单4"
+            if (subMenuKeyLength === 3) {
+              this.$set(item.subButtons, "3",
+                {
+                  name: "子菜单4"
+                }
+              );
             }
-          );
-        }
-        if (subMenuKeyLength === 2) {
-          this.$set(item.subButtons, "2",
-            {
-              name: "子菜单3"
+            if (subMenuKeyLength === 2) {
+              this.$set(item.subButtons, "2",
+                {
+                  name: "子菜单3"
+                }
+              );
             }
-          );
-        }
-        if (subMenuKeyLength === 1) {
-          this.$set(item.subButtons, "1",
-            {
-              name: "子菜单2"
+            if (subMenuKeyLength === 1) {
+              this.$set(item.subButtons, "1",
+                {
+                  name: "子菜单2"
+                }
+              );
             }
-          );
-        }
-        if (subMenuKeyLength === 0) {
-          this.$set(item.subButtons, "0",
-            {
-              name: "子菜单1"
+            if (subMenuKeyLength === 0) {
+              this.$set(item.subButtons, "0",
+                {
+                  name: "子菜单1"
+                }
+              );
             }
-          );
-        }
+          }
+        })
       },
       // 素材内容弹框的选择按钮函数
       handleEdit(index, row) {
@@ -329,8 +405,15 @@
       },
 
       closeSelf() {
+        this.showRightFlag = true
+        this.isActive = -1
+        this.isSubMenuActive = -1
+        this.isSubMenuFlag = -1
+        this.tempObj = {}
+        this.tempSelfObj = {}
+        this.materialDialogVisible = false
+        this.materialList = []
         this.$emit('success', true)
-        this.$emit('destroy')
       }
     },
   }
@@ -430,10 +513,16 @@
         }
       }
 
-      .save_btn {
+      .save-btn {
         position: absolute;
         bottom: -50px;
-        left: 100px;
+        left: 50px;
+      }
+
+      .cancel-btn {
+        position: absolute;
+        bottom: -50px;
+        left: 200px;
       }
     }
 
@@ -448,44 +537,6 @@
       margin-left: 20px;
       -webkit-box-sizing: border-box;
       box-sizing: border-box;
-
-      .configure-page {
-        .delete-btn {
-          text-align: right;
-          margin-bottom: 15px;
-        }
-
-        .menu-content {
-          margin-top: 20px;
-        }
-
-        .configure-content {
-          margin-top: 20px;
-        }
-
-        .blue {
-          color: #29b6f6;
-          margin-top: 10px;
-        }
-
-        .applet {
-          margin-bottom: 20px;
-
-          span {
-            margin-right: 18px;
-          }
-        }
-
-        .material {
-          .input-width {
-            width: 30%;
-          }
-
-          .el-textarea {
-            width: 80%
-          }
-        }
-      }
     }
   }
 </style>

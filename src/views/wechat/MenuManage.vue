@@ -5,6 +5,7 @@
       <el-input v-model="listQuery.province" placeholder="省份" @keyup.enter.native="handleFilter" style="width: 200px;" class="filter-item"></el-input>
       <el-input v-model="listQuery.city" placeholder="城市" @keyup.enter.native="handleFilter" style="width: 200px;" class="filter-item"></el-input>
       <el-button class="filter-item" @click="handleFilter" type="primary" v-waves icon="search">搜索</el-button>
+      <el-button class="filter-item" @click="handleCreate" type="primary" v-waves icon="add">新增</el-button>
     </div>
 
     <el-table :data="list" v-loading="listLoading" border fit highlight-current-row style="width: 99%">
@@ -65,8 +66,42 @@
 
     <pagination v-show="!listLoading" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList"/>
 
-    <el-dialog fullscreen :title="dialogTypeMap[dialogType]" :visible.sync="dialogFormVisible">
-      <menu-button-manage :menu="this.menu" @success="closeDialog"></menu-button-manage>
+    <el-dialog :fullscreen="dialogType === 'buttonEdit'" :title="dialogTypeMap[dialogType]" :visible.sync="dialogFormVisible" :show-close="false">
+      <el-form v-if="dialogType !== 'buttonEdit' " :model="form" :rules="rules" ref="form" label-width="100px">
+        <el-form-item label="标签" prop="tagId">
+          <el-select v-model="form.tagId" placeholder="请选择" class="filter-item" style="width: 300px">
+            <el-option v-for="item in tagOptions" :key="item.id" :value="item.id" :label="item.tagName"/>
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="性别" prop="sex">
+          <el-select v-model="form.sex" placeholder="请选择" class="filter-item" style="width: 300px">
+            <el-option v-for="item in sexOptions" :key="item" :value="item" :label="item | sexFilter"/>
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="客户端类型" prop="clientPlatformType">
+          <el-select v-model="form.clientPlatformType" multiple placeholder="请选择" class="filter-item" style="width: 300px">
+            <el-option v-for="item in clientOptions" :key="item" :value="item" :label="item | clientFilter"/>
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="语言" prop="language">
+          <el-select v-model="form.language" multiple placeholder="暂不支持" disabled class="filter-item" style="width: 300px"></el-select>
+        </el-form-item>
+
+        <el-form-item  label="省市区" prop="area">
+          <area-select/>
+        </el-form-item>
+      </el-form>
+
+      <menu-button-manage v-else :menu="this.menu" @success="closeDialog" ref="menuButtonManage"></menu-button-manage>
+
+      <div v-if="dialogType !== 'buttonEdit' " slot="footer" class="dialog-footer">
+        <el-button @click="cancel('form')">取 消</el-button>
+        <el-button v-if="dialogType === 'create'" type="primary" @click="create('form')">确 定</el-button>
+        <el-button v-else type="primary" @click="update('form')">修 改</el-button>
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -129,6 +164,18 @@
           buttonEdit: "编辑按钮"
         },
 
+        form: {
+          username: undefined,
+          newPassword: undefined,
+          status: undefined,
+          phone: undefined,
+          roleIdList: undefined
+        },
+
+        sexOptions: [0, 1, 2],
+        clientOptions: [0, 1, 2, 3],
+        tagOptions: [],
+
         menu: {
           menuRuleId: null,
           buttons: []
@@ -154,7 +201,7 @@
             this.total = response.total
             this.listLoading = false
           })
-          .then(() => {
+          .catch(() => {
             this.listLoading = false
           })
       },
@@ -189,11 +236,20 @@
         })
       },
 
+      handleCreate() {
+        this.dialogType = 'create'
+        this.dialogFormVisible = true
+      },
       handleUpdate(row) {
-
+        getMenu(row.id)
+          .then(response => {
+            this.form = response
+            this.dialogType = 'update'
+            this.dialogFormVisible = true
+          })
       },
       handleButtonEdit(row) {
-        this.menu.menuButtonId = row.id
+        this.menu.menuRuleId = row.id
         fetchMenuButtonTree(row.id).then(response => {
           if (response === null) {
             this.menu.buttons = [{
@@ -216,7 +272,6 @@
 
           this.dialogFormVisible = true
           this.dialogType = 'buttonEdit'
-          this.menuRuleId = row.id;
         })
       },
 

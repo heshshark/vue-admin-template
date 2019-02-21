@@ -17,7 +17,7 @@ export default {
     const vnodes = []
 
     if (icon) {
-      vnodes.push(<svg-icon icon-class={icon}/>)
+      vnodes.push(<svg-icon icon-class={icon} class-name='menu-item-icon'/>)
     }
 
     if (title) {
@@ -27,3 +27,8 @@ export default {
   }
 }
 </script>
+<style lang="scss">
+  .menu-item-icon{
+    font-size: 16px;
+  }
+</style>
