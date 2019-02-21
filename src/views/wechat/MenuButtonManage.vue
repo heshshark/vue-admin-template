@@ -146,9 +146,9 @@
     name: 'WechatMenuButtonManage',
 
     props: {
-      menuId: {
+      menu: {
         required: true,
-        type: String
+        type: Object
       }
     },
 
@@ -162,25 +162,6 @@
     data() {
       return {
         showRightFlag: true,//右边配置显示默认详情还是配置详情
-
-        menu: {
-          buttons: [
-            {
-              type: "click",
-              name: "菜单1",
-              url: "",
-              mediaId: "",
-              subButtons: [
-                {
-                  type: "",
-                  name: "子菜单1",
-                  url: "",
-                  mediaId: "",
-                },
-              ]
-            }
-          ]
-        },
 
         isActive: -1,// 一级菜单点中样式
         isSubMenuActive: -1,// 一级菜单点中样式
@@ -204,29 +185,10 @@
       }
     },
 
-    created(){
-      console.log("created")
-    },
-
-    mounted() {
-      console.log("mounted")
-      this.getMenuButtonTree();//模拟调取菜单数据
-    },
-
-    destroyed(){
-      console.log("销毁")
-    },
-
     methods: {
-      getMenuButtonTree() {
-        fetchMenuButtonTree(this.menuId).then(response => {
-          this.menu.buttons = response
-        })
-      },
       getMaterialList() {
         fetchMaterialList()
           .then(response => {
-            this.menu = response
           })
           .catch(() => {
 
