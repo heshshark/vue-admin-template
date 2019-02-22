@@ -14,11 +14,13 @@
     "svgo": "svgo -f src/icons/svg --config=src/icons/svgo.yml"
   },
   "dependencies": {
+    "area-data": "^5.0.6",
     "axios": "0.18.0",
     "element-ui": "2.4.6",
     "js-cookie": "2.2.0",
     "normalize.css": "7.0.0",
     "nprogress": "0.2.0",
+    "v-distpicker": "^1.1.0",
     "vue": "2.5.17",
     "vue-area-linkage": "^5.1.0",
     "vue-axios": "^2.0.2",

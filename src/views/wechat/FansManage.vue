@@ -2,9 +2,9 @@
   <div class="app-container calendar-list-container">
     <div class="filter-container">
       <el-input v-model="listQuery.username" placeholder="用户名" @keyup.enter.native="handleFilter" style="width: 200px;" class="filter-item"></el-input>
-      <el-button type="primary" icon="search" v-waves @click="handleFilter" class="filter-item">搜索</el-button>
+      <el-button type="primary" icon="el-icon-search" v-waves @click="handleFilter" class="filter-item">搜索</el-button>
 
-      <el-button type="primary" icon="sync" v-waves @click="handleSync" class="filter-item">同步</el-button>
+      <el-button type="primary" icon="el-icon-refresh" v-waves @click="handleSync" class="filter-item">同步</el-button>
     </div>
 
     <el-table :key='tableKey' :data="list" v-loading="listLoading" border fit highlight-current-row style="width: 99%">

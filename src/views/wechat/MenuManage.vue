@@ -4,8 +4,9 @@
       <el-input v-model="listQuery.country" placeholder="国家" @keyup.enter.native="handleFilter" style="width: 200px;" class="filter-item"></el-input>
       <el-input v-model="listQuery.province" placeholder="省份" @keyup.enter.native="handleFilter" style="width: 200px;" class="filter-item"></el-input>
       <el-input v-model="listQuery.city" placeholder="城市" @keyup.enter.native="handleFilter" style="width: 200px;" class="filter-item"></el-input>
-      <el-button class="filter-item" @click="handleFilter" type="primary" v-waves icon="search">搜索</el-button>
-      <el-button class="filter-item" @click="handleCreate" type="primary" v-waves icon="add">新增</el-button>
+      <el-button class="filter-item" @click="handleFilter" type="primary" v-waves icon="el-icon-search">搜索</el-button>
+
+      <el-button class="filter-item" @click="handleCreate" type="primary" v-waves icon="el-icon-circle-plus-outline">新增</el-button>
     </div>
 
     <el-table :data="list" v-loading="listLoading" border fit highlight-current-row style="width: 99%">
@@ -24,11 +25,13 @@
         </template>
       </el-table-column>
 
+      <!--
       <el-table-column align="center" label="国家">
         <template slot-scope="scope">
           <span>{{scope.row.country || '无' }}</span>
         </template>
       </el-table-column>
+      -->
 
       <el-table-column align="center" label="省份">
         <template slot-scope="scope">
@@ -48,9 +51,17 @@
         </template>
       </el-table-column>
 
+      <!--
       <el-table-column align="center" label="语言">
         <template slot-scope="scope">
           <span>{{scope.row.language || '无' }}</span>
+        </template>
+      </el-table-column>
+      -->
+
+      <el-table-column align="center" label="状态">
+        <template slot-scope="scope">
+          <el-tag :type="scope.row.menuId  === '-1' ? 'info':'success'">{{ scope.row.menuId  === '-1' ? '草稿':'已发布' }}</el-tag>
         </template>
       </el-table-column>
 
@@ -66,8 +77,8 @@
 
     <pagination v-show="!listLoading" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList"/>
 
-    <el-dialog :fullscreen="dialogType === 'buttonEdit'" :title="dialogTypeMap[dialogType]" :visible.sync="dialogFormVisible" :show-close="false">
-      <el-form v-if="dialogType !== 'buttonEdit' " :model="form" :rules="rules" ref="form" label-width="100px">
+    <el-dialog :fullscreen="dialogType === 'buttonEdit'" :title="dialogTypeMap[dialogType]" :visible.sync="dialogFormVisible" :show-close="false" :close-on-click-modal="false">
+      <el-form v-if="dialogType !== 'buttonEdit' " :model="form" ref="form" label-width="100px">
         <el-form-item label="标签" prop="tagId">
           <el-select v-model="form.tagId" placeholder="请选择" class="filter-item" style="width: 300px">
             <el-option v-for="item in tagOptions" :key="item.id" :value="item.id" :label="item.tagName"/>
@@ -81,17 +92,19 @@
         </el-form-item>
 
         <el-form-item label="客户端类型" prop="clientPlatformType">
-          <el-select v-model="form.clientPlatformType" multiple placeholder="请选择" class="filter-item" style="width: 300px">
+          <el-select v-model="form.clientPlatformType" placeholder="请选择" class="filter-item" style="width: 300px">
             <el-option v-for="item in clientOptions" :key="item" :value="item" :label="item | clientFilter"/>
           </el-select>
         </el-form-item>
 
+        <!--
         <el-form-item label="语言" prop="language">
-          <el-select v-model="form.language" multiple placeholder="暂不支持" disabled class="filter-item" style="width: 300px"></el-select>
+          <el-select v-model="form.language" placeholder="暂不支持" disabled="" class="filter-item" style="width: 300px"></el-select>
         </el-form-item>
+        -->
 
-        <el-form-item  label="省市区" prop="area">
-          <area-select/>
+        <el-form-item  label="省市" prop="area">
+          <dist-picker :province="form.province + '省'" :city="form.city + '市'" :hide-area="true"/>
         </el-form-item>
       </el-form>
 
@@ -107,8 +120,9 @@
 </template>
 
 <script>
-  import {addWechatMenu, fetchMenuList, publishMenu, fetchMenuButtonTree} from '@/api/wechat-mp'
+  import {addWechatMenu, fetchMenuButtonTree, fetchMenuList, publishMenu} from '@/api/wechat-mp'
   import {mapGetters} from 'vuex'
+  import DistPicker from 'v-distpicker'
   import Waves from '@/directive/waves/index.js'
   import Pagination from '@/components/Pagination'
   import MenuButtonManage from '@/views/wechat/MenuButtonManage'
@@ -118,7 +132,8 @@
 
     components: {
       Pagination,
-      MenuButtonManage
+      MenuButtonManage,
+      DistPicker
     },
 
     directives: {
@@ -241,12 +256,9 @@
         this.dialogFormVisible = true
       },
       handleUpdate(row) {
-        getMenu(row.id)
-          .then(response => {
-            this.form = response
-            this.dialogType = 'update'
-            this.dialogFormVisible = true
-          })
+        this.form = row
+        this.dialogType = 'update'
+        this.dialogFormVisible = true
       },
       handleButtonEdit(row) {
         this.menu.menuRuleId = row.id

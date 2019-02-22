@@ -36,7 +36,7 @@ const user = {
     // 登录
     Login({ commit }, userInfo) {
       return new Promise((resolve, reject) => {
-        loginByUsername(userInfo.username, "$2a$10$vg5QNHhCknAqevx9vM2s5esllJEzF/pa8VZXtFYHhhOhUcCw/GWyS").then(response => {
+        loginByUsername(userInfo.username, userInfo.password).then(response => {
           const data = response.data
           setToken(data.access_token)
           commit('SET_TOKEN', data.access_token)

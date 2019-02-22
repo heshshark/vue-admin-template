@@ -2,9 +2,9 @@
   <div class="app-container calendar-list-container">
     <div class="filter-container">
       <el-input v-model="listQuery.ruleName" placeholder="规则名称" @keyup.enter.native="handleFilter" style="width: 200px;" class="filter-item"></el-input>
-      <el-button type="primary" icon="search" v-waves @click="handleFilter" class="filter-item">搜索</el-button>
+      <el-button type="primary" icon="el-icon-search" v-waves @click="handleFilter" class="filter-item">搜索</el-button>
 
-      <el-button v-if="addPermission" @click="handleCreate" type="primary" icon="edit" class="filter-item" style="margin-left: 10px;">添加</el-button>
+      <el-button v-if="addPermission" @click="handleCreate" type="primary" icon="el-icon-circle-plus-outline" class="filter-item" style="margin-left: 10px;">添加</el-button>
     </div>
 
     <el-table :data="list" v-loading="listLoading" border fit highlight-current-row style="width: 99%">
@@ -45,7 +45,7 @@
 
     <pagination v-show="!listLoading" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList"/>
 
-    <el-dialog :title="dialogTypeMap[dialogType]" :visible.sync="dialogFormVisible">
+    <el-dialog :title="dialogTypeMap[dialogType]" :visible.sync="dialogFormVisible" :close-on-click-modal="false">
       <el-form :model="form" :rules="formRules" label-width="100px" ref="form">
         <el-form-item label="规则名称" prop="ruleName">
           <el-input v-model="form.ruleName" placeholder="请输规则名称"/>

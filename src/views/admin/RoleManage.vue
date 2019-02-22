@@ -44,7 +44,7 @@
 
     <pagination v-show="!listLoading" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList"/>
 
-    <el-dialog :title="dialogTypeMap[dialogType]" :visible.sync="dialogFormVisible">
+    <el-dialog :title="dialogTypeMap[dialogType]" :visible.sync="dialogFormVisible" :close-on-click-modal="false">
       <el-form :model="form" :rules="formRules" label-width="100px" ref="form">
         <el-form-item label="角色名称" prop="roleName">
           <el-input v-model="form.roleName" placeholder="角色名称"></el-input>

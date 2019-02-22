@@ -2,8 +2,8 @@
   <div class="app-container calendar-list-container">
     <div class="filter-container">
       <el-input v-model="listQuery.username" placeholder="用户名" @keyup.enter.native="handleFilter" style="width: 200px;" class="filter-item"></el-input>
-      <el-button type="primary" icon="search" v-waves @click="handleFilter" class="filter-item">搜索</el-button>
-      <el-button type="primary" icon="add" v-waves @click="handleCreate" class="filter-item">新增</el-button>
+      <el-button type="primary" icon="el-icon-search" v-waves @click="handleFilter" class="filter-item">搜索</el-button>
+      <el-button type="primary" icon="el-icon-circle-plus-outline" v-waves @click="handleCreate" class="filter-item">新增</el-button>
     </div>
 
     <el-table :data="list" v-loading="listLoading" border fit highlight-current-row style="width: 99%">
@@ -33,7 +33,7 @@
 
     <pagination v-show="!listLoading" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList"/>
 
-    <el-dialog :title="dialogTypeMap[dialogType]" :visible.sync="dialogFormVisible">
+    <el-dialog :title="dialogTypeMap[dialogType]" :visible.sync="dialogFormVisible" :close-on-click-modal="false">
       <el-form :model="form" :rules="formRules" label-width="100px" ref="form">
         <el-form-item label="标签名称" prop="tagName">
           <el-input v-model="form.tagName" placeholder="请输标签名称"/>

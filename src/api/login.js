@@ -6,7 +6,7 @@ export function loginByUsername(username, password) {
   return request({
     url: '/auth/oauth/token',
     headers: {
-      'Authorization': 'Basic cGlnOnBpZw=='
+      'Authorization': 'Basic YXBwOmFwcA=='
     },
     method: 'post',
     params: {username, password, grant_type, scope}

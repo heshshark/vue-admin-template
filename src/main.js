@@ -3,8 +3,6 @@ import VueAxios from 'vue-axios'
 import axios from './utils/request'
 import 'normalize.css/normalize.css' // A modern alternative to CSS resets
 
-import VueAreaLinkage from 'vue-area-linkage';
-
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import locale from 'element-ui/lib/locale/lang/zh-CN' // lang i18n
@@ -28,7 +26,6 @@ Object.keys(filters).forEach(key => {
 Vue.use(ElementUI, { locale })
 Vue.use(VueAxios, axios)
 
-Vue.use(VueAreaLinkage)
 Vue.config.productionTip = false
 
 new Vue({

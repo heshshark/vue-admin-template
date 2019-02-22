@@ -5,7 +5,7 @@
       <div class="menu clearfix">
         <div class="menu-bottom" v-for="(item, i) of menu.buttons" :key="i">
           <!-- 一级菜单 -->
-          <div @click="handleMenuClick(i,item)" class="menu-item" :class="{'active': isActive === i}">{{item.name}}</div>
+          <div @click="handleMenuClick(i,item)" class="menu-item" :class="{'active': isActive === i}">{{ item.name }}</div>
           <!--以下为二级菜单-->
           <div class="submenu" v-if="isSubMenuFlag === i">
             <div class="subtitle" v-for="(subItem, k) in item.subButtons" :key="k">
@@ -31,60 +31,62 @@
           <el-button type="danger" icon="el-icon-delete" @click="handleDeleteMenuButton(tempObj)">删除</el-button>
         </el-form-item>
 
-        <el-form-item label="菜单类型" prop="type">
-          <el-radio-group v-model="tempObj.type">
-            <el-radio :label="'media_id'">发送素材</el-radio>
-            <el-radio :label="'view'">跳转链接</el-radio>
-            <el-radio :label="'click'">发送关键词</el-radio>
-            <el-radio :label="'miniprogram'">小程序</el-radio>
-          </el-radio-group>
-        </el-form-item>
+        <div v-if="tempObj.subButtons === undefined ||tempObj.subButtons.length === 0">
+          <el-form-item label="菜单类型" prop="type">
+            <el-radio-group v-model="tempObj.type">
+              <el-radio :label="'media_id'">发送素材</el-radio>
+              <el-radio :label="'view'">跳转链接</el-radio>
+              <el-radio :label="'click'">发送关键词</el-radio>
+              <el-radio :label="'miniprogram'">小程序</el-radio>
+            </el-radio-group>
+          </el-form-item>
 
-        <el-form-item v-if="tempObj.type === 'media_id'" label="素材" prop="mediaId">
-          <el-input v-model="tempObj.mediaId" placeholder="素材名称" :disabled="true"></el-input>
-          <!--下面点击“选择素材”按钮，弹框框-->
-          <el-popover
-            placement="left"
-            width="600"
-            v-model="materialDialogVisible">
-            <el-table :data="materialList" style="width: 100%">
-              <el-table-column label="文件名" width="450">
-                <template slot-scope="scope">
-                  <el-popover trigger="hover" placement="top">
-                    <p>文件名: {{ scope.row.name }}</p>
-                    <div slot="reference" class="name-wrapper">
-                      <el-tag size="medium">{{ scope.row.name }}</el-tag>
-                    </div>
-                  </el-popover>
-                </template>
-              </el-table-column>
-              <el-table-column label="">
-                <template slot-scope="scope">
-                  <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">选择</el-button>
-                </template>
-              </el-table-column>
-            </el-table>
+          <el-form-item v-if="tempObj.type === 'media_id'" label="素材" prop="mediaId">
+            <el-input v-model="tempObj.mediaId" placeholder="素材名称" :disabled="true"></el-input>
+            <!--下面点击“选择素材”按钮，弹框框-->
+            <el-popover
+              placement="left"
+              width="600"
+              v-model="materialDialogVisible">
+              <el-table :data="materialList" style="width: 100%">
+                <el-table-column label="文件名" width="450">
+                  <template slot-scope="scope">
+                    <el-popover trigger="hover" placement="top">
+                      <p>文件名: {{ scope.row.name }}</p>
+                      <div slot="reference" class="name-wrapper">
+                        <el-tag size="medium">{{ scope.row.name }}</el-tag>
+                      </div>
+                    </el-popover>
+                  </template>
+                </el-table-column>
+                <el-table-column label="">
+                  <template slot-scope="scope">
+                    <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">选择</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
 
-            <el-button slot="reference" type="success">选择素材</el-button>
-          </el-popover>
-        </el-form-item>
+              <el-button slot="reference" type="success">选择素材</el-button>
+            </el-popover>
+          </el-form-item>
 
-        <el-form-item v-if="tempObj.type === 'view'" label="跳转链接" prop="url">
-          <el-input v-model="tempObj.url" placeholder="请输入链接" clearable></el-input>
-        </el-form-item>
+          <el-form-item v-if="tempObj.type === 'view'" label="跳转链接" prop="url">
+            <el-input v-model="tempObj.url" placeholder="请输入链接" clearable></el-input>
+          </el-form-item>
 
-        <el-form-item v-if="tempObj.type === 'click'" label="关键词" prop="key">
-          <el-input v-model="tempObj.key" placeholder="请输入关键词" clearable></el-input>
-        </el-form-item>
+          <el-form-item v-if="tempObj.type === 'click'" label="关键词" prop="key">
+            <el-input v-model="tempObj.key" placeholder="请输入关键词" clearable></el-input>
+          </el-form-item>
 
-        <el-form-item v-if="tempObj.type === 'miniprogram'" label="小程序的appId" prop="appId">
-          <el-input v-model="tempObj.appId" placeholder="请输入小程序的appId" clearable></el-input>
-        </el-form-item>
+          <el-form-item v-if="tempObj.type === 'miniprogram'" label="小程序的appId" prop="appId">
+            <el-input v-model="tempObj.appId" placeholder="请输入小程序的appId" clearable></el-input>
+          </el-form-item>
 
-        <el-form-item v-if="tempObj.type === 'miniprogram'" label="小程序的页面路径" prop="pagePath">
-          <el-input v-model="tempObj.pagePath" placeholder="请输入小程序的页面路径，如：pages/index" clearable></el-input>
-          <p class="blue">tips:需要和公众号进行关联才可以把小程序绑定带微信菜单上哟！</p>
-        </el-form-item>
+          <el-form-item v-if="tempObj.type === 'miniprogram'" label="小程序的页面路径" prop="pagePath">
+            <el-input v-model="tempObj.pagePath" placeholder="请输入小程序的页面路径，如：pages/index" clearable></el-input>
+            <p class="blue">tips:需要和公众号进行关联才可以把小程序绑定带微信菜单上哟！</p>
+          </el-form-item>
+        </div>
       </el-form>
     </div>
     <!--一进页面就显示的默认页面，当点击左边按钮的时候，就不显示了-->
@@ -400,8 +402,9 @@
           type: 'warning'
         }).then(() => {
           _this.deleteData();// 删除菜单数据
+          this.showRightFlag = true
         }).catch(() => {
-        });
+        })
       },
 
       closeSelf() {

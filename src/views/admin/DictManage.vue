@@ -58,7 +58,7 @@
 
     <pagination v-show="!listLoading" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList"/>
 
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" :close-on-click-modal="false">
       <el-form :model="form" :rules="rules" ref="form" label-width="100px">
         <el-form-item v-if="dialogStatus === 'update'" label="编号" prop="id">
           <el-input v-model="form.id" placeholder="编号" :disabled="true"></el-input>
