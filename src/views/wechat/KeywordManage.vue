@@ -45,7 +45,7 @@
 
     <pagination v-show="!listLoading" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList"/>
 
-    <el-dialog :title="dialogTypeMap[dialogType]" :visible.sync="dialogFormVisible" :close-on-click-modal="false">
+    <el-dialog :title="dialogTypeMap[dialogType]" :visible.sync="dialogFormVisible" :close-on-click-modal="false" :show-close="false">
       <el-form :model="form" :rules="formRules" label-width="100px" ref="form">
         <el-form-item label="规则名称" prop="ruleName">
           <el-input v-model="form.ruleName" placeholder="请输规则名称"/>
@@ -145,12 +145,12 @@
         },
 
         form: {
-          ruleName: undefined,
-          keyword: undefined,
-          matchMode: undefined,
-          messageType: undefined,
-          textContent: undefined,
-          isEnable: undefined
+          ruleName: null,
+          keyword: null,
+          matchMode: null,
+          messageType: null,
+          textContent: null,
+          isEnable: null
         },
         formRules: {
           ruleName: [
@@ -334,6 +334,7 @@
       cancel(formName) {
         this.dialogFormVisible = false
         this.$refs[formName].resetFields()
+        this.form = {}
       }
     }
   }
