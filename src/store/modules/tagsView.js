@@ -39,7 +39,7 @@ const tagsView = {
 
     DEL_OTHERS_VISITED_VIEWS: (state, view) => {
       for (const [i, v] of state.visitedViews.entries()) {
-        if (v.path === view.path) {
+        if (v.path === view.path || v.path === '/dashboard') {
           state.visitedViews = state.visitedViews.slice(i, i + 1)
           break
         }

@@ -67,10 +67,10 @@
 
       <el-table-column align="center" label="操作" width="400">
         <template slot-scope="scope">
-          <el-button v-if="scope.row.id !== 0" size="small" type="success" @click="handleUpdate(scope.row)">编辑</el-button>
+          <el-button v-if="scope.row.id !== '0'" size="small" type="success" @click="handleUpdate(scope.row)">编辑</el-button>
           <el-button size="small" type="success" @click="handleButtonEdit(scope.row)">配置按钮</el-button>
           <el-button v-if="scope.row.menuId === '-1'" size="small" type="success" @click="handlePublish(scope.row.id)">发布</el-button>
-          <el-button v-if="scope.row.id !== 0" size="small" type="danger" @click="remove(scope.row)">删除</el-button>
+          <el-button v-if="scope.row.id !== '0'" size="small" type="danger" @click="remove(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -304,6 +304,7 @@
         this.dialogFormVisible = false
       },
       cancel(formName) {
+        this.form = {}
         this.dialogFormVisible = false
         this.$refs[formName].resetFields()
       }

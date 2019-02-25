@@ -328,7 +328,7 @@
         }
         return temp
       },
-      filterNode(value, data) {
+      handleFansTagClick(value, data) {
         if (!value) return true
         return data.label.indexOf(value) !== -1
       },
