@@ -123,21 +123,12 @@
   import {addWechatMenu, fetchMenuButtonTree, fetchMenuList, publishMenu} from '@/api/wechat-mp'
   import {mapGetters} from 'vuex'
   import DistPicker from 'v-distpicker'
-  import Waves from '@/directive/waves/index.js'
-  import Pagination from '@/components/Pagination'
-  import MenuButtonManage from '@/views/wechat/MenuButtonManage'
 
   export default {
     name: "WechatMenuManage",
 
     components: {
-      Pagination,
-      MenuButtonManage,
       DistPicker
-    },
-
-    directives: {
-      Waves
     },
 
     filters: {

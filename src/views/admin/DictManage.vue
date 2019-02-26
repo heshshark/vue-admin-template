@@ -93,20 +93,10 @@
 
 <script>
   import {addObj, delObj, fetchList, putObj} from '@/api/dict'
-  import waves from '@/directive/waves/index.js' // 水波纹指令
   import {mapGetters} from 'vuex'
-  import Pagination from '@/components/Pagination'
 
   export default {
     name: 'DictManage',
-
-    components: {
-      Pagination
-    },
-
-    directives: {
-      waves
-    },
 
     filters: {
       statusFilter(status) {

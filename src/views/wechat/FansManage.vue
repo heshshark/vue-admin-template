@@ -88,23 +88,9 @@
 <script>
   import {fetchFansList, syncFans, fetchFansTagList} from "@/api/wechat-mp"
   import {mapGetters} from "vuex"
-  import Waves from "@/directive/waves/index.js"
-  import Pagination from '@/components/Pagination'
-  import ElRadioGroup from "element-ui/packages/radio/src/radio-group"
-  import ElOption from "element-ui/packages/select/src/option"
 
   export default {
     name: "WechatFansManage",
-
-    components: {
-      ElOption,
-      ElRadioGroup,
-      Pagination
-    },
-
-    directives: {
-      Waves
-    },
 
     filters: {
       statusFilter(status) {

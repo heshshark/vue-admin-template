@@ -180,19 +180,9 @@
 <script>
   import {fetchKeywordList, getKeyword, addKeyword, deleteKeyword, updateKeyword} from "@/api/wechat-mp"
   import {mapGetters} from "vuex"
-  import Waves from "@/directive/waves/index.js"
-  import Pagination from '@/components/Pagination'
 
   export default {
     name: "WechatMaterialManage",
-
-    components: {
-      Pagination
-    },
-
-    directives: {
-      Waves
-    },
 
     filters: {
       matchModeFilter(mode) {
