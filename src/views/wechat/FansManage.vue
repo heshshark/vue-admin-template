@@ -181,6 +181,10 @@
         })
       },
 
+      handleFansTagCreate(){
+
+      },
+
       handleFansTagClick(data) {
         if (data.id === undefined) {
           this.listQuery.tagId = null

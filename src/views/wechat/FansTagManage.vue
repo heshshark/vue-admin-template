@@ -47,16 +47,6 @@
         <el-button v-else type="primary" @click="update('form')">修 改</el-button>
       </div>
     </el-dialog>
-
-    <el-dialog :title="dialogTypeMap[dialogType]" :visible.sync="dialogPermissionVisible">
-      <el-tree node-key="id" :props="defaultProps" :data="treeData" :default-checked-keys="checkedKeys"
-               :check-strictly="false" :filter-node-method="handleFansTagClick"
-               default-expand-all highlight-current show-checkbox ref="menuTree" class="filter-tree">
-      </el-tree>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="updatePermission(roleId)">更 新</el-button>
-      </div>
-    </el-dialog>
   </div>
 </template>
 
