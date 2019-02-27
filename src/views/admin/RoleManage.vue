@@ -79,18 +79,9 @@
   import {addRole, delRole, fetchList, fetchRoleMenuIds, getObj, updaterPermission, putObj} from '@/api/role'
   import {fetchMenuTree} from '@/api/menu'
   import {mapGetters} from 'vuex'
-  import waves from '@/directive/waves/index.js'
-  import Pagination from '@/components/Pagination'
 
   export default {
     name: 'RoleManage',
-
-    components: {
-      Pagination
-    },
-    directives: {
-      waves
-    },
 
     data() {
       return {

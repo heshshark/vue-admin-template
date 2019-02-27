@@ -77,17 +77,10 @@
 </template>
 
 <script>
-  import {delObj, fetchList} from '@/api/log'
-  import {remote} from '@/api/dict'
-  import waves from '@/directive/waves/index.js'
   import {mapGetters} from 'vuex'
 
   export default {
     name: 'LogManage',
-
-    directives: {
-      waves
-    },
 
     filters: {
       typeFilter(type) {

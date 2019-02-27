@@ -47,14 +47,12 @@
 
 <script>
   import VueUpload from "vue-image-crop-upload";
-  import ElFormItem from "element-ui/packages/form/src/form-item.vue";
   import {mapState} from "vuex";
   import {getToken} from "@/utils/auth";
   import request from "@/utils/request";
 
   export default {
     components: {
-      ElFormItem,
       VueUpload
     },
 

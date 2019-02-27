@@ -24,7 +24,7 @@
 
           <el-table-column align="center" label="操作" width="200">
             <template slot-scope="scope">
-              <el-button size="small" type="danger" @click="handleUpdate(scope.row)">编辑</el-button>
+              <el-button size="small" type="danger" @click="handleArticleUpdate(scope.row)">编辑</el-button>
               <el-button size="small" type="danger" @click="remove(scope.row)">删除</el-button>
             </template>
           </el-table-column>
@@ -180,19 +180,9 @@
 <script>
   import {fetchKeywordList, getKeyword, addKeyword, deleteKeyword, updateKeyword} from "@/api/wechat-mp"
   import {mapGetters} from "vuex"
-  import Waves from "@/directive/waves/index.js"
-  import Pagination from '@/components/Pagination'
 
   export default {
     name: "WechatMaterialManage",
-
-    components: {
-      Pagination
-    },
-
-    directives: {
-      Waves
-    },
 
     filters: {
       matchModeFilter(mode) {
@@ -335,12 +325,8 @@
         })
       },
 
-      handleUpdate(row) {
-        getKeyword(row.id).then(response => {
-          this.form = response
-          this.dialogFormVisible = true
-          this.dialogType = "update"
-        });
+      handleArticleUpdate(row) {
+        this.$router.push({ path:'/wechat/mp/article'})
       },
 
       handleFilter() {

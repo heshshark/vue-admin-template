@@ -47,39 +47,15 @@
         <el-button v-else type="primary" @click="update('form')">修 改</el-button>
       </div>
     </el-dialog>
-
-    <el-dialog :title="dialogTypeMap[dialogType]" :visible.sync="dialogPermissionVisible">
-      <el-tree node-key="id" :props="defaultProps" :data="treeData" :default-checked-keys="checkedKeys"
-               :check-strictly="false" :filter-node-method="handleFansTagClick"
-               default-expand-all highlight-current show-checkbox ref="menuTree" class="filter-tree">
-      </el-tree>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="updatePermission(roleId)">更 新</el-button>
-      </div>
-    </el-dialog>
   </div>
 </template>
 
 <script>
   import {addFansTag, updateFansTag, deleteFansTag, getFansTag, fetchFansTagList} from "@/api/wechat-mp"
   import {mapGetters} from "vuex"
-  import Waves from "@/directive/waves/index.js"
-  import Pagination from '@/components/Pagination'
-  import ElRadioGroup from "element-ui/packages/radio/src/radio-group"
-  import ElOption from "element-ui/packages/select/src/option"
 
   export default {
     name: "WechatFansTagManage",
-
-    components: {
-      ElOption,
-      ElRadioGroup,
-      Pagination
-    },
-
-    directives: {
-      Waves
-    },
 
     data() {
       return {

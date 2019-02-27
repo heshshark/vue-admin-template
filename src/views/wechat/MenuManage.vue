@@ -61,7 +61,7 @@
 
       <el-table-column align="center" label="状态">
         <template slot-scope="scope">
-          <el-tag :type="scope.row.menuId  === '-1' ? 'info':'success'">{{ scope.row.menuId  === '-1' ? '草稿':'已发布' }}</el-tag>
+          <el-tag :type="scope.row.menuId  === '-1' ? 'info':'success'">{{ scope.row.menuId === '-1' ? '草稿':'已发布' }}</el-tag>
         </template>
       </el-table-column>
 
@@ -77,7 +77,8 @@
 
     <pagination v-show="!listLoading" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList"/>
 
-    <el-dialog :fullscreen="dialogType === 'buttonEdit'" :title="dialogTypeMap[dialogType]" :visible.sync="dialogFormVisible" :show-close="false" :close-on-click-modal="false">
+    <el-dialog :fullscreen="dialogType === 'buttonEdit'" :title="dialogTypeMap[dialogType]" :visible.sync="dialogFormVisible" :show-close="false"
+               :close-on-click-modal="false">
       <el-form v-if="dialogType !== 'buttonEdit' " :model="form" ref="form" label-width="100px">
         <el-form-item label="标签" prop="tagId">
           <el-select v-model="form.tagId" placeholder="请选择" class="filter-item" style="width: 300px">
@@ -103,7 +104,7 @@
         </el-form-item>
         -->
 
-        <el-form-item  label="省市" prop="area">
+        <el-form-item label="省市" prop="area">
           <dist-picker :province="form.province + '省'" :city="form.city + '市'" :hide-area="true"/>
         </el-form-item>
       </el-form>
@@ -123,21 +124,14 @@
   import {addWechatMenu, fetchMenuButtonTree, fetchMenuList, publishMenu} from '@/api/wechat-mp'
   import {mapGetters} from 'vuex'
   import DistPicker from 'v-distpicker'
-  import Waves from '@/directive/waves/index.js'
-  import Pagination from '@/components/Pagination'
-  import MenuButtonManage from '@/views/wechat/MenuButtonManage'
+  import MenuButtonManage from './MenuButtonManage'
 
   export default {
     name: "WechatMenuManage",
 
     components: {
-      Pagination,
       MenuButtonManage,
       DistPicker
-    },
-
-    directives: {
-      Waves
     },
 
     filters: {

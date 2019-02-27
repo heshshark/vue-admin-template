@@ -97,7 +97,7 @@
 </template>
 
 <script>
-  import {fetchMenuButtonTree, fetchMaterialList, addMenuButton} from '@/api/wechat-mp.js'
+  import {fetchMaterialList, addMenuButton} from '@/api/wechat-mp.js'
 
   /**
    *时间：2018/08/26

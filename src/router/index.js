@@ -33,10 +33,15 @@ export const constantRouterMap = [
       }
     ]
   },
+  {
+    path: '/404',
+    component: () => import('@/views/404'), hidden: true
+  },
 
-  {path: '/login', component: () => import('@/views/Login'), hidden: true},
-  {path: '/404', component: () => import('@/views/404'), hidden: true},
-
+  {
+    path: '/login',
+    component: () => import('@/views/Login'), hidden: true
+  },
   {
     path: '/',
     component: Layout,
@@ -48,6 +53,19 @@ export const constantRouterMap = [
         name: '首页',
         meta: {title: '首页', icon: 'dashboard', noCache: true},
         component: () => import('@/views/dashboard/index')
+      }
+    ]
+  },
+  {
+    path: "/wechat/mp/article",
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: '/wechat/mp/article',
+        name: '图文消息编辑',
+        meta: {title: '图文消息编辑'},
+        component: () => import('@/views/wechat/ArticleEditor')
       }
     ]
   }

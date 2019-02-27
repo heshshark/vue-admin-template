@@ -154,7 +154,7 @@ export function updateMenuButton(button) {
  */
 export function fetchMaterialList(query) {
   return request({
-    url: prefix + '/material/queries',
+    url: prefix + '/materials/queries',
     method: 'post',
     data: query
   })
@@ -162,29 +162,37 @@ export function fetchMaterialList(query) {
 
 export function getMaterial(articlesId) {
   return request({
-    url: prefix + '/material/' + articlesId,
+    url: prefix + '/materials/' + articlesId,
     method: 'get'
   })
 }
 
-export function addMaterial(article) {
+export function addMaterialNews(article) {
   return request({
-    url: prefix + '/material/',
+    url: prefix + '/materials/news',
     method: 'post',
     data: article
   })
 }
 
+export function addMaterial(type,material) {
+  return request({
+    url: prefix + '/materials/'+type,
+    method: 'post',
+    data: material
+  })
+}
+
 export function deleteMaterial(articleId) {
   return request({
-    url: prefix + '/material/' + articleId,
+    url: prefix + '/materials/' + articleId,
     method: 'delete'
   })
 }
 
 export function updateMaterial(article) {
   return request({
-    url: prefix + '/material/',
+    url: prefix + '/materials/',
     method: 'patch',
     data: article
   })
