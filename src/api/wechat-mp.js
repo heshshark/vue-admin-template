@@ -152,11 +152,10 @@ export function updateMenuButton(button) {
 /*
 素材管理
  */
-export function fetchMaterialList(query) {
+export function fetchMaterialList(type,offset,count) {
   return request({
-    url: prefix + '/materials/queries',
-    method: 'post',
-    data: query
+    url: prefix + '/materials/?type='+type+'&offset='+offset+'&count='+count,
+    method: 'get'
   })
 }
 

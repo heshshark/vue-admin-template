@@ -2,7 +2,7 @@
   <div class="app-container calendar-list-container">
     <el-row>
       <el-col :span="4">
-        <el-row v-for="(item,index) in articleList" :key="item">
+        <el-row v-for="(item,index) in articleList">
           <el-card :body-style="{ padding: '0px' }" @click.native="handleArticleClick(item,index)">
             <div v-if="index === 0" :class="selectedArticleIndex === index? 'article-selected':''">
               <div class="article-item" style="position:relative;width:100%;height:150px;">
@@ -44,7 +44,7 @@
         </el-row>
         <el-row v-if="articleList.length < 8">
           <el-card body-style="{display:block;text-align:center;position:relative}">
-            <div class="el-icon-plus" style="width:100%;height:100%;" @click="handleAddArticle()"></div>
+            <div class="el-icon-plus" style="font-size:25px;width:100%;height:100%;" @click="handleAddArticle()"></div>
           </el-card>
         </el-row>
       </el-col>
@@ -56,7 +56,7 @@
         <el-row style="margin-top: 20px">
           <el-form>
             <el-form-item label="封面">
-              <div class="thumb-uploader">
+              <div class="thumb-uploader" @click="handleThumbImagePick()">
                 <img v-if="articleList[selectedArticleIndex].thumbUrl" :src="articleList[selectedArticleIndex].thumbUrl" class="thumb-img">
                 <i v-else class="el-icon-plus thumb-img-add"></i>
               </div>
@@ -90,26 +90,53 @@
         </el-row>
       </el-col>
 
-      <el-col :span="8">
+      <el-col :span="8" :offset="2">
         <div v-html="articleList[selectedArticleIndex].content"></div>
       </el-col>
     </el-row>
 
-    <el-dialog title="选择封面" :visable.sync="dialogVisible">
+    <el-dialog title="选择封面" :visible.sync="dialogVisible">
+      <el-steps :active="imageStepActive" :space="200" :align-center="true" style="margin-left: 250px">
+        <el-step title="选择图片"></el-step>
+        <el-step title="裁剪图片"></el-step>
+      </el-steps>
+      <vue-waterfall-easy v-if="imageStepActive === 1" :imgsArr="materialImageList"
+                          :imgWidth="150"
+                          height="400px"
+                          srcKey="url"
+                          @scrollReachBottom="getMaterialImageList()">
+        <div slot-scope="props">
+          <el-button :type="materialImageSelected.url === props.value.url ?'success':'info'" icon="el-icon-check" circle
+                     @click="handleMaterialImgClick(props.value)"></el-button>
+          <i style="margin-left: 10px;font-size: 14px">{{props.value.name}}</i>
+        </div>
+      </vue-waterfall-easy>
+      <image-cropper v-show="imageStepActive === 2" v-else :imgUrl="materialImageSelected.url"/>
 
+      <div slot="footer" class="dialog-footer">
+        <el-button v-if="imageStepActive === 1" :disabled="!materialImageSelected.url" @click="nextCropImg">下一步</el-button>
+        <div v-else>
+          <el-button @click="prevChooseImg">上一步</el-button>
+          <el-button @click="saveCropImg">完成</el-button>
+        </div>
+      </div>
     </el-dialog>
   </div>
 </template>
 
 <script>
-  import {addMaterialNews} from '@/api/wechat-mp'
+  import {addMaterialNews, fetchMaterialList} from '@/api/wechat-mp'
   import VueUeditorWrap from 'vue-ueditor-wrap'
+  import VueWaterfallEasy from 'vue-waterfall-easy'
+  import ImageCropper from '@/components/cropper/CustomCropper'
 
   export default {
-    name: "WechatFansManage",
+    name: "WechatArticleEditor",
 
     components: {
-      VueUeditorWrap
+      VueUeditorWrap,
+      VueWaterfallEasy,
+      ImageCropper
     },
 
     filters: {},
@@ -129,7 +156,7 @@
             onlyFansCanComment: false
           },
           {
-            thumbUrl: 'http://pic3.40017.cn/scenery/destination/2015/04/18/03/vrn29Y.jpg',
+            thumbUrl: 'https://mmbiz.qpic.cn/mmbiz_png/uNGYC1dwMGWljPgtP9UekLMd7UvjaGDWg7wicceq5vCibx4BicKfaGZNJOe9sDEbs2dklaicj9iaOTJv7P3AKoGMXxA/0?wx_fmt=png',
             title: 'title2',
             content: '中国'
           }
@@ -142,7 +169,26 @@
           serverUrl: 'http://35.201.165.105:8000/controller.php'
         },
 
-        dialogVisible: false
+        materialImageOffset: 0,
+        dialogVisible: false,
+        materialImageList: [
+          {
+            url: 'http://pic3.40017.cn/scenery/destination/2015/04/18/03/vrn29Y.jpg',
+            name: '图片名称',
+            mediaIdId: ''
+          },
+          {
+            url: 'http://94.191.37.36/wechat_img/mmbiz_png/uNGYC1dwMGWljPgtP9UekLMd7UvjaGDWg7wicceq5vCibx4BicKfaGZNJOe9sDEbs2dklaicj9iaOTJv7P3AKoGMXxA/0?wx_fmt=png',
+            name: '图片名称',
+            mediaIdId: ''
+          }
+        ],
+        materialImageSelected: {
+          url: '',
+          name: '',
+          mediaIdId: ''
+        },
+        imageStepActive: 1
       }
     },
 
@@ -205,6 +251,36 @@
         this.articleList.splice(index, 1)
         this.selectedArticleIndex = -1
         this.selectedArticleIndex = index - 1
+      },
+
+      handleThumbImagePick() {
+        this.dialogVisible = true
+        this.getMaterialImageList()
+      },
+      handleMaterialImgClick(item) {
+        if (this.materialImageSelected === item) {
+          this.materialImageSelected = {}
+        } else {
+          this.materialImageSelected = item
+        }
+      },
+      getMaterialImageList() {
+        fetchMaterialList('image', this.materialImageOffset, 20)
+          .then(response => {
+            this.materialImageList = this.materialImageList.concat(response.items)
+          })
+      },
+
+      nextCropImg() {
+        this.imageStepActive = 2
+      },
+
+      prevChooseImg() {
+        this.imageStepActive = 1
+      },
+
+      saveCropImg() {
+
       }
 
     }
