@@ -33,7 +33,7 @@ export function fetchFansTagList(query) {
 
 export function getFansTag(fansTagId) {
   return request({
-    url: prefix + '/fansTags/'+fansTagId,
+    url: prefix + '/fansTags/' + fansTagId,
     method: 'get'
   })
 }
@@ -56,7 +56,7 @@ export function updateFansTag(tag) {
 
 export function deleteFansTag(tagId) {
   return request({
-    url: prefix + '/fansTags/'+tagId,
+    url: prefix + '/fansTags/' + tagId,
     method: 'delete'
   })
 }
@@ -74,7 +74,7 @@ export function fetchMenuList(query) {
 
 export function publishMenu(menuId) {
   return request({
-    url: prefix + '/menus/publish/'+menuId,
+    url: prefix + '/menus/publish/' + menuId,
     method: 'put'
   })
 }
@@ -121,7 +121,7 @@ export function fetchMenuButtonList(query) {
 
 export function fetchMenuButtonTree(menuId) {
   return request({
-    url: prefix + '/menuButtons/tree/'+menuId,
+    url: prefix + '/menuButtons/tree/' + menuId,
     method: 'get'
   })
 }
@@ -152,17 +152,16 @@ export function updateMenuButton(button) {
 /*
 素材管理
  */
-export function fetchMaterialList(query) {
+export function fetchMaterialList(type, offset, count) {
   return request({
-    url: prefix + '/materials/queries',
-    method: 'post',
-    data: query
+    url: prefix + '/materials?type=' + type + '&offset=' + offset + '&count=' + count,
+    method: 'get'
   })
 }
 
-export function getMaterial(articlesId) {
+export function getMaterial(type, mediaId) {
   return request({
-    url: prefix + '/materials/' + articlesId,
+    url: prefix + '/materials/' + type + '/' + mediaId,
     method: 'get'
   })
 }
@@ -175,9 +174,9 @@ export function addMaterialNews(article) {
   })
 }
 
-export function addMaterial(type,material) {
+export function addMaterial(type, material) {
   return request({
-    url: prefix + '/materials/'+type,
+    url: prefix + '/materials/' + type,
     method: 'post',
     data: material
   })

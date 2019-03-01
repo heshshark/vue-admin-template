@@ -2,11 +2,11 @@
   <div class="app-container calendar-list-container">
     <el-row>
       <el-col :span="4">
-        <el-row v-for="(item,index) in articleList" :key="item">
+        <el-row v-for="(item,index) in articleList">
           <el-card :body-style="{ padding: '0px' }" @click.native="handleArticleClick(item,index)">
             <div v-if="index === 0" :class="selectedArticleIndex === index? 'article-selected':''">
-              <div class="article-item" style="position:relative;width:100%;height:150px;">
-                <el-col style="position:relative;width:100%;height:150px;">
+              <div class="article-item" style="position:relative;width:100%;height:120px;">
+                <el-col style="position:relative;width:100%;height:120px;">
                   <img :src="item.thumbUrl" style="width:99.9%;height:99.99%"/>
                   <strong style="color:white;position:absolute;left:10px;bottom:10px;right:10px">
                     {{ item.title }}
@@ -44,7 +44,7 @@
         </el-row>
         <el-row v-if="articleList.length < 8">
           <el-card body-style="{display:block;text-align:center;position:relative}">
-            <div class="el-icon-plus" style="width:100%;height:100%;" @click="handleAddArticle()"></div>
+            <div class="el-icon-plus" style="font-size:25px;width:100%;height:100%;" @click="handleAddArticle()"></div>
           </el-card>
         </el-row>
       </el-col>
@@ -56,20 +56,25 @@
         <el-row style="margin-top: 20px">
           <el-form>
             <el-form-item label="封面">
-              <div class="thumb-uploader">
-                <img v-if="articleList[selectedArticleIndex].thumbUrl" :src="articleList[selectedArticleIndex].thumbUrl" class="thumb-img">
-                <i v-else class="el-icon-plus thumb-img-add"></i>
+              <div @click="handleThumbImagePick" :class="selectedArticleIndex === 0?'thumb-uploader-main':'thumb-uploader-normal'">
+                <img v-if="articleList[selectedArticleIndex].thumbUrl" :src="articleList[selectedArticleIndex].thumbUrl"
+                     :class="selectedArticleIndex === 0?'thumb-img-main':'thumb-img-normal'">
+                <i v-else class="el-icon-plus"></i>
               </div>
+            </el-form-item>
+            <el-form-item label="文章标题">
+              <el-input placeholder="请输入标题"
+                        v-model="articleList[selectedArticleIndex].title"/>
+            </el-form-item>
+            <el-form-item label="作者名称">
+              <el-input placeholder="请输入作者名称"
+                        v-model="articleList[selectedArticleIndex].author"/>
             </el-form-item>
             <el-form-item label="摘要">
               <el-input type="textarea"
                         :rows="2"
                         placeholder="请输入摘要内容"
                         v-model="articleList[selectedArticleIndex].digest"/>
-            </el-form-item>
-            <el-form-item label="作者名称">
-              <el-input placeholder="请输入作者名称"
-                        v-model="articleList[selectedArticleIndex].author"/>
             </el-form-item>
             <el-form-item label="是否开启评论">
               <el-switch
@@ -86,30 +91,67 @@
               </el-switch>
             </el-form-item>
           </el-form>
-          <el-button type="primary" icon="el-icon-check" v-waves @click="handleArticleSave()" class="filter-item">保存</el-button>
+          <el-button type="primary" icon="el-icon-check" v-waves @click="handleArticleSave" class="filter-item">保存</el-button>
         </el-row>
       </el-col>
 
-      <el-col :span="8">
+      <el-col :span="8" :offset="2">
         <div v-html="articleList[selectedArticleIndex].content"></div>
       </el-col>
     </el-row>
 
-    <el-dialog title="选择封面" :visable.sync="dialogVisible">
+    <el-dialog v-if="dialogVisible" title="选择封面" :visible.sync="dialogVisible" :before-close="handleDialogClose">
+      <el-steps :active="imageStepActive" :space="200" :align-center="true" style="margin-left: 250px;margin-bottom: 20px">
+        <el-step title="选择图片"></el-step>
+        <el-step title="裁剪图片"></el-step>
+      </el-steps>
+      <el-upload
+        v-if="imageStepActive === 1"
+        style="float: right"
+        ref="upload"
+        action="https://jsonplaceholder.typicode.com/posts/"
+        :before-upload="handleLocalUpload">
+        <el-button slot="trigger" size="small" type="primary" :disabled="!!materialImageSelected.url">本地文件</el-button>
+      </el-upload>
+      <vue-waterfall-easy v-if="imageStepActive === 1" :imgsArr="materialImageList"
+                          :imgWidth="150"
+                          height="400px"
+                          srcKey="url"
+                          @scrollReachBottom="getMaterialImageList()"
+                          style="margin-top: 50px">
+        <div slot-scope="props">
+          <el-button :type="materialImageSelected.url === props.value.url ?'success':'info'" icon="el-icon-check" circle
+                     @click="handleMaterialImgClick(props.value)"></el-button>
+          <i style="margin-left: 10px;font-size: 14px">{{props.value.name}}</i>
+        </div>
+      </vue-waterfall-easy>
+      <image-cropper v-show="imageStepActive === 2" v-else :ratio="selectedArticleIndex === 0? 2.35:1" :imgUrl="materialImageSelected.url"
+                     :local-file="localFile" ref="imageCropper"/>
 
+      <div slot="footer" class="dialog-footer">
+        <el-button v-if="imageStepActive === 1" :disabled="!materialImageSelected.url" @click="nextCropImg">下一步</el-button>
+        <div v-else>
+          <el-button @click="prevChooseImg">上一步</el-button>
+          <el-button @click="saveCropImg">完成</el-button>
+        </div>
+      </div>
     </el-dialog>
   </div>
 </template>
 
 <script>
-  import {addMaterialNews} from '@/api/wechat-mp'
+  import {addMaterialNews, addMaterial, fetchMaterialList, getMaterial} from '@/api/wechat-mp'
   import VueUeditorWrap from 'vue-ueditor-wrap'
+  import VueWaterfallEasy from 'vue-waterfall-easy'
+  import ImageCropper from '@/components/cropper/CustomCropper'
 
   export default {
-    name: "WechatFansManage",
+    name: "WechatArticleEditor",
 
     components: {
-      VueUeditorWrap
+      VueUeditorWrap,
+      VueWaterfallEasy,
+      ImageCropper
     },
 
     filters: {},
@@ -129,7 +171,7 @@
             onlyFansCanComment: false
           },
           {
-            thumbUrl: 'http://pic3.40017.cn/scenery/destination/2015/04/18/03/vrn29Y.jpg',
+            thumbUrl: 'https://mmbiz.qpic.cn/mmbiz_png/uNGYC1dwMGWljPgtP9UekLMd7UvjaGDWg7wicceq5vCibx4BicKfaGZNJOe9sDEbs2dklaicj9iaOTJv7P3AKoGMXxA/0?wx_fmt=png',
             title: 'title2',
             content: '中国'
           }
@@ -142,16 +184,46 @@
           serverUrl: 'http://35.201.165.105:8000/controller.php'
         },
 
-        dialogVisible: false
+        materialImageOffset: 0,
+        dialogVisible: false,
+        materialImageList: [
+          {
+            url: 'http://pic3.40017.cn/scenery/destination/2015/04/18/03/vrn29Y.jpg',
+            name: '图片名称',
+            mediaIdId: ''
+          },
+          {
+            url: 'http://94.191.37.36/wechat_img/mmbiz_png/uNGYC1dwMGWljPgtP9UekLMd7UvjaGDWg7wicceq5vCibx4BicKfaGZNJOe9sDEbs2dklaicj9iaOTJv7P3AKoGMXxA/0?wx_fmt=png',
+            name: '图片名称',
+            mediaIdId: ''
+          }
+        ],
+        materialImageSelected: {
+          url: '',
+          name: '',
+          mediaIdId: ''
+        },
+        imageStepActive: 1,
+        clipData: null,
+        localFile: null
       }
     },
 
     computed: {},
 
     created() {
+      this.initData()
     },
 
     methods: {
+      initData() {
+        if (this.$route.query.mediaId) {
+          getMaterial('news', this.$route.query.mediaId)
+            .then(response => {
+              this.articleList = response.articles
+            })
+        }
+      },
 
       editorInit() {
         this.$refs.editor.registerButton({
@@ -205,6 +277,80 @@
         this.articleList.splice(index, 1)
         this.selectedArticleIndex = -1
         this.selectedArticleIndex = index - 1
+      },
+
+      handleThumbImagePick() {
+        this.dialogVisible = true
+        //this.getMaterialImageList()
+      },
+      handleMaterialImgClick(item) {
+        if (this.materialImageSelected === item) {
+          this.materialImageSelected = {}
+        } else {
+          this.materialImageSelected = item
+        }
+      },
+      getMaterialImageList() {
+        fetchMaterialList('image', this.materialImageOffset, 20)
+          .then(response => {
+            this.materialImageList = this.materialImageList.concat(response.items)
+          })
+      },
+
+      nextCropImg() {
+        this.imageStepActive = 2
+      },
+
+      prevChooseImg() {
+        this.imageStepActive = 1
+      },
+
+      dataURItoBlob(dataURI) {
+        // convert base64/URLEncoded data component to raw binary data held in a string
+        var byteString
+        if (dataURI.split(',')[0].indexOf('base64') >= 0)
+          byteString = atob(dataURI.split(',')[1])
+        else
+          byteString = unescape(dataURI.split(',')[1])
+
+        // separate out the mime component
+        var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
+
+        // write the bytes of the string to a typed array
+        var ia = new Uint8Array(byteString.length)
+        for (var i = 0; i < byteString.length; i++) {
+          ia[i] = byteString.charCodeAt(i)
+        }
+
+        return new Blob([ia], {type: mimeString})
+      },
+
+      saveCropImg() {
+        let thumbFile = this.dataURItoBlob(this.$refs.imageCropper.clipData);
+        let thumbFilename = 'thumb_img_' + new Date().getTime() + '.png'
+        let formData = new FormData();
+        formData.append('file', thumbFile, thumbFilename)
+        addMaterial('image', formData)
+          .then((response) => {
+            this.articleList[this.selectedArticleIndex].thumbMediaId = response.mediaId
+            this.articleList[this.selectedArticleIndex].thumbUrl = response.url
+            this.dialogVisible = false
+          })
+      },
+
+      handleLocalUpload(file) {
+        this.imageStepActive = 2
+        this.localFile = file
+        return false
+      },
+
+      handleDialogClose() {
+        this.dialogVisible = false
+        this.materialImageSelected = {}
+        this.materialImageList = []
+        this.imageStepActive = 1
+        this.clipData = null
+        this.localFile = null
       }
 
     }
@@ -242,7 +388,7 @@
     float: left;
   }
 
-  .thumb-uploader {
+  .thumb-uploader-main {
     width: 235px;
     height: 100px;
     border: 1px dashed #d9d9d9;
@@ -252,16 +398,41 @@
     overflow: hidden;
   }
 
-  .thumb-img {
+  .thumb-uploader-normal {
+    width: 100px;
+    height: 100px;
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .thumb-img-main {
     width: 235px;
     height: 100px;
     display: block;
   }
 
-  .thumb-img-add {
+  .thumb-img-normal {
+    width: 100px;
+    height: 100px;
+    display: block;
+  }
+
+  .thumb-img-add-main {
     font-size: 28px;
     color: #8c939d;
     width: 235px;
+    height: 100px;
+    line-height: 100px;
+    text-align: center;
+  }
+
+  .thumb-img-add-normal {
+    font-size: 28px;
+    color: #8c939d;
+    width: 100px;
     height: 100px;
     line-height: 100px;
     text-align: center;
