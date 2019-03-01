@@ -5,8 +5,8 @@
         <el-row v-for="(item,index) in articleList">
           <el-card :body-style="{ padding: '0px' }" @click.native="handleArticleClick(item,index)">
             <div v-if="index === 0" :class="selectedArticleIndex === index? 'article-selected':''">
-              <div class="article-item" style="position:relative;width:100%;height:150px;">
-                <el-col style="position:relative;width:100%;height:150px;">
+              <div class="article-item" style="position:relative;width:100%;height:120px;">
+                <el-col style="position:relative;width:100%;height:120px;">
                   <img :src="item.thumbUrl" style="width:99.9%;height:99.99%"/>
                   <strong style="color:white;position:absolute;left:10px;bottom:10px;right:10px">
                     {{ item.title }}
@@ -56,20 +56,25 @@
         <el-row style="margin-top: 20px">
           <el-form>
             <el-form-item label="封面">
-              <div class="thumb-uploader" @click="handleThumbImagePick()">
-                <img v-if="articleList[selectedArticleIndex].thumbUrl" :src="articleList[selectedArticleIndex].thumbUrl" class="thumb-img">
-                <i v-else class="el-icon-plus thumb-img-add"></i>
+              <div @click="handleThumbImagePick" :class="selectedArticleIndex === 0?'thumb-uploader-main':'thumb-uploader-normal'">
+                <img v-if="articleList[selectedArticleIndex].thumbUrl" :src="articleList[selectedArticleIndex].thumbUrl"
+                     :class="selectedArticleIndex === 0?'thumb-img-main':'thumb-img-normal'">
+                <i v-else class="el-icon-plus"></i>
               </div>
+            </el-form-item>
+            <el-form-item label="文章标题">
+              <el-input placeholder="请输入标题"
+                        v-model="articleList[selectedArticleIndex].title"/>
+            </el-form-item>
+            <el-form-item label="作者名称">
+              <el-input placeholder="请输入作者名称"
+                        v-model="articleList[selectedArticleIndex].author"/>
             </el-form-item>
             <el-form-item label="摘要">
               <el-input type="textarea"
                         :rows="2"
                         placeholder="请输入摘要内容"
                         v-model="articleList[selectedArticleIndex].digest"/>
-            </el-form-item>
-            <el-form-item label="作者名称">
-              <el-input placeholder="请输入作者名称"
-                        v-model="articleList[selectedArticleIndex].author"/>
             </el-form-item>
             <el-form-item label="是否开启评论">
               <el-switch
@@ -86,7 +91,7 @@
               </el-switch>
             </el-form-item>
           </el-form>
-          <el-button type="primary" icon="el-icon-check" v-waves @click="handleArticleSave()" class="filter-item">保存</el-button>
+          <el-button type="primary" icon="el-icon-check" v-waves @click="handleArticleSave" class="filter-item">保存</el-button>
         </el-row>
       </el-col>
 
@@ -95,23 +100,33 @@
       </el-col>
     </el-row>
 
-    <el-dialog title="选择封面" :visible.sync="dialogVisible">
-      <el-steps :active="imageStepActive" :space="200" :align-center="true" style="margin-left: 250px">
+    <el-dialog v-if="dialogVisible" title="选择封面" :visible.sync="dialogVisible" :before-close="handleDialogClose">
+      <el-steps :active="imageStepActive" :space="200" :align-center="true" style="margin-left: 250px;margin-bottom: 20px">
         <el-step title="选择图片"></el-step>
         <el-step title="裁剪图片"></el-step>
       </el-steps>
+      <el-upload
+        v-if="imageStepActive === 1"
+        style="float: right"
+        ref="upload"
+        action="https://jsonplaceholder.typicode.com/posts/"
+        :before-upload="handleLocalUpload">
+        <el-button slot="trigger" size="small" type="primary" :disabled="!!materialImageSelected.url">本地文件</el-button>
+      </el-upload>
       <vue-waterfall-easy v-if="imageStepActive === 1" :imgsArr="materialImageList"
                           :imgWidth="150"
                           height="400px"
                           srcKey="url"
-                          @scrollReachBottom="getMaterialImageList()">
+                          @scrollReachBottom="getMaterialImageList()"
+                          style="margin-top: 50px">
         <div slot-scope="props">
           <el-button :type="materialImageSelected.url === props.value.url ?'success':'info'" icon="el-icon-check" circle
                      @click="handleMaterialImgClick(props.value)"></el-button>
           <i style="margin-left: 10px;font-size: 14px">{{props.value.name}}</i>
         </div>
       </vue-waterfall-easy>
-      <image-cropper v-show="imageStepActive === 2" v-else :imgUrl="materialImageSelected.url"/>
+      <image-cropper v-show="imageStepActive === 2" v-else :ratio="selectedArticleIndex === 0? 2.35:1" :imgUrl="materialImageSelected.url"
+                     :local-file="localFile" ref="imageCropper"/>
 
       <div slot="footer" class="dialog-footer">
         <el-button v-if="imageStepActive === 1" :disabled="!materialImageSelected.url" @click="nextCropImg">下一步</el-button>
@@ -125,7 +140,7 @@
 </template>
 
 <script>
-  import {addMaterialNews, fetchMaterialList} from '@/api/wechat-mp'
+  import {addMaterialNews, addMaterial, fetchMaterialList, getMaterial} from '@/api/wechat-mp'
   import VueUeditorWrap from 'vue-ueditor-wrap'
   import VueWaterfallEasy from 'vue-waterfall-easy'
   import ImageCropper from '@/components/cropper/CustomCropper'
@@ -188,16 +203,27 @@
           name: '',
           mediaIdId: ''
         },
-        imageStepActive: 1
+        imageStepActive: 1,
+        clipData: null,
+        localFile: null
       }
     },
 
     computed: {},
 
     created() {
+      this.initData()
     },
 
     methods: {
+      initData() {
+        if (this.$route.query.mediaId) {
+          getMaterial('news', this.$route.query.mediaId)
+            .then(response => {
+              this.articleList = response.articles
+            })
+        }
+      },
 
       editorInit() {
         this.$refs.editor.registerButton({
@@ -255,7 +281,7 @@
 
       handleThumbImagePick() {
         this.dialogVisible = true
-        this.getMaterialImageList()
+        //this.getMaterialImageList()
       },
       handleMaterialImgClick(item) {
         if (this.materialImageSelected === item) {
@@ -279,8 +305,52 @@
         this.imageStepActive = 1
       },
 
-      saveCropImg() {
+      dataURItoBlob(dataURI) {
+        // convert base64/URLEncoded data component to raw binary data held in a string
+        var byteString
+        if (dataURI.split(',')[0].indexOf('base64') >= 0)
+          byteString = atob(dataURI.split(',')[1])
+        else
+          byteString = unescape(dataURI.split(',')[1])
 
+        // separate out the mime component
+        var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
+
+        // write the bytes of the string to a typed array
+        var ia = new Uint8Array(byteString.length)
+        for (var i = 0; i < byteString.length; i++) {
+          ia[i] = byteString.charCodeAt(i)
+        }
+
+        return new Blob([ia], {type: mimeString})
+      },
+
+      saveCropImg() {
+        let thumbFile = this.dataURItoBlob(this.$refs.imageCropper.clipData);
+        let thumbFilename = 'thumb_img_' + new Date().getTime() + '.png'
+        let formData = new FormData();
+        formData.append('file', thumbFile, thumbFilename)
+        addMaterial('image', formData)
+          .then((response) => {
+            this.articleList[this.selectedArticleIndex].thumbMediaId = response.mediaId
+            this.articleList[this.selectedArticleIndex].thumbUrl = response.url
+            this.dialogVisible = false
+          })
+      },
+
+      handleLocalUpload(file) {
+        this.imageStepActive = 2
+        this.localFile = file
+        return false
+      },
+
+      handleDialogClose() {
+        this.dialogVisible = false
+        this.materialImageSelected = {}
+        this.materialImageList = []
+        this.imageStepActive = 1
+        this.clipData = null
+        this.localFile = null
       }
 
     }
@@ -318,7 +388,7 @@
     float: left;
   }
 
-  .thumb-uploader {
+  .thumb-uploader-main {
     width: 235px;
     height: 100px;
     border: 1px dashed #d9d9d9;
@@ -328,16 +398,41 @@
     overflow: hidden;
   }
 
-  .thumb-img {
+  .thumb-uploader-normal {
+    width: 100px;
+    height: 100px;
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .thumb-img-main {
     width: 235px;
     height: 100px;
     display: block;
   }
 
-  .thumb-img-add {
+  .thumb-img-normal {
+    width: 100px;
+    height: 100px;
+    display: block;
+  }
+
+  .thumb-img-add-main {
     font-size: 28px;
     color: #8c939d;
     width: 235px;
+    height: 100px;
+    line-height: 100px;
+    text-align: center;
+  }
+
+  .thumb-img-add-normal {
+    font-size: 28px;
+    color: #8c939d;
+    width: 100px;
     height: 100px;
     line-height: 100px;
     text-align: center;

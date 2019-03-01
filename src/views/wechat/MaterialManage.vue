@@ -2,17 +2,19 @@
   <div class="app-container calendar-list-container">
     <el-tabs active-name="first" @tab-click="handleTabClick">
       <el-tab-pane label="图文素材" name="first">
-        <el-table :key='tableKey' :data="newsList" v-loading="listLoading" border fit highlight-current-row style="width: 99%">
+        <el-button type="primary" icon="el-icon-circle-plus-outline" v-waves @click="handleMaterialNewsCreate" class="filter-item">新增</el-button>
+
+        <el-table :key='tableKey' :data="newsList" v-loading="listLoading" border fit highlight-current-row style="width: 99%;margin-top: 20px">
           <el-table-column type="index" width="50"/>
 
           <el-table-column align="center" label="内容">
             <template slot-scope="scope">
-              <div style="text-align:center">
-                <img :src="scope.row.content.articles[0].thumbUrl" width="150px" height="80px" style="float: left;vertical-align: middle;"/>
-                <div style="float: left;padding-left: 20px">
-                  <div v-for="item in scope.row.content.articles">{{ item.title }}</div>
-                </div>
-              </div>
+              <el-col :span="6">
+                <img :src="scope.row.thumbUrl"/>
+              </el-col>
+              <el-col :span="18" :pull="8">
+                <pre style="font-size: 16px">{{ scope.row.summary }}</pre>
+              </el-col>
             </template>
           </el-table-column>
 
@@ -24,7 +26,7 @@
 
           <el-table-column align="center" label="操作" width="200">
             <template slot-scope="scope">
-              <el-button size="small" type="danger" @click="handleArticleUpdate(scope.row)">编辑</el-button>
+              <el-button size="small" type="danger" @click="handleMaterialNewsUpdate(scope.row)">编辑</el-button>
               <el-button size="small" type="danger" @click="remove(scope.row)">删除</el-button>
             </template>
           </el-table-column>
@@ -43,142 +45,22 @@
       </el-tab-pane>
 
       <el-tab-pane label="图片素材" name="second">
-        <el-row :gutter="20">
-          <el-col :span="8" v-for="item in imageMaterialList" :key="item">
-            <el-card :body-style="{ padding: '0px' }">
-              <img class="image">
-              <div style="padding: 14px;">
-                <span>{{ item.name }}</span>
-                <div class="bottom clearfix">
-                  <time class="time">{{ item.updateTime }}</time>
-                  <el-button type="danger">删除</el-button>
-                </div>
-              </div>
-            </el-card>
-          </el-col>
-        </el-row>
 
-        <pagination v-show="!listLoading" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList"/>
-
-        <el-dialog :title="dialogTypeMap[dialogType]" :visible.sync="dialogFormVisible">
-          <div slot="footer" class="dialog-footer">
-            <el-button @click="cancel('form')">取 消</el-button>
-
-            <el-button v-if="dialogType === 'create'" type="primary" @click="create('form')">确 定</el-button>
-            <el-button v-else type="primary" @click="update('form')">修 改</el-button>
-          </div>
-        </el-dialog>
       </el-tab-pane>
 
       <el-tab-pane label="语音素材" name="third">
-        <el-table :key='tableKey' :data="list" v-loading="listLoading" border fit highlight-current-row style="width: 99%">
-          <el-table-column type="index" width="50">
-          </el-table-column>
 
-          <el-table-column align="center" label="规则名称">
-            <template slot-scope="scope">
-              <span>{{ scope.row.ruleName || '无' }}</span>
-            </template>
-          </el-table-column>
-
-          <el-table-column align="center" label="关键字">
-            <template slot-scope="scope">
-              <span>{{ scope.row.keyword }}</span>
-            </template>
-          </el-table-column>
-
-          <el-table-column align="center" label="匹配规则">
-            <template slot-scope="scope">
-              <span>{{ scope.row.matchMode | matchModeFilter }}</span>
-            </template>
-          </el-table-column>
-
-          <el-table-column align="center" label="回复消息类型">
-            <template slot-scope="scope">
-              <span>{{ scope.row.messageType | messageTypeFilter }}</span>
-            </template>
-          </el-table-column>
-
-          <el-table-column align="center" label="操作" width="200">
-            <template slot-scope="scope">
-              <el-button v-if="sys_user_upd" size="small" type="success" @click="handleUpdate(scope.row)">详情</el-button>
-              <el-button v-if="sys_user_del" size="small" type="danger" @click="handleUpdate(scope.row)">修改</el-button>
-              <el-button v-if="sys_user_del" size="small" type="danger" @click="remove(scope.row)">删除</el-button>
-            </template>
-          </el-table-column>
-
-        </el-table>
-
-        <pagination v-show="!listLoading" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList"/>
-
-        <el-dialog :title="dialogTypeMap[dialogType]" :visible.sync="dialogFormVisible">
-
-          <div slot="footer" class="dialog-footer">
-            <el-button @click="cancel('form')">取 消</el-button>
-
-            <el-button v-if="dialogType === 'create'" type="primary" @click="create('form')">确 定</el-button>
-            <el-button v-else type="primary" @click="update('form')">修 改</el-button>
-          </div>
-        </el-dialog>
       </el-tab-pane>
 
       <el-tab-pane label="视频素材" name="fourth">
-        <el-table :key='tableKey' :data="list" v-loading="listLoading" border fit highlight-current-row style="width: 99%">
-          <el-table-column type="index" width="50">
-          </el-table-column>
 
-          <el-table-column align="center" label="规则名称">
-            <template slot-scope="scope">
-              <span>{{ scope.row.ruleName || '无' }}</span>
-            </template>
-          </el-table-column>
-
-          <el-table-column align="center" label="关键字">
-            <template slot-scope="scope">
-              <span>{{ scope.row.keyword }}</span>
-            </template>
-          </el-table-column>
-
-          <el-table-column align="center" label="匹配规则">
-            <template slot-scope="scope">
-              <span>{{ scope.row.matchMode | matchModeFilter }}</span>
-            </template>
-          </el-table-column>
-
-          <el-table-column align="center" label="回复消息类型">
-            <template slot-scope="scope">
-              <span>{{ scope.row.messageType | messageTypeFilter }}</span>
-            </template>
-          </el-table-column>
-
-          <el-table-column align="center" label="操作" width="200">
-            <template slot-scope="scope">
-              <el-button v-if="sys_user_upd" size="small" type="success" @click="handleUpdate(scope.row)">详情</el-button>
-              <el-button v-if="sys_user_del" size="small" type="danger" @click="handleUpdate(scope.row)">修改</el-button>
-              <el-button v-if="sys_user_del" size="small" type="danger" @click="remove(scope.row)">删除</el-button>
-            </template>
-          </el-table-column>
-
-        </el-table>
-
-        <pagination v-show="!listLoading" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList"/>
-
-        <el-dialog :title="dialogTypeMap[dialogType]" :visible.sync="dialogFormVisible">
-
-          <div slot="footer" class="dialog-footer">
-            <el-button @click="cancel('form')">取 消</el-button>
-
-            <el-button v-if="dialogType === 'create'" type="primary" @click="create('form')">确 定</el-button>
-            <el-button v-else type="primary" @click="update('form')">修 改</el-button>
-          </div>
-        </el-dialog>
       </el-tab-pane>
     </el-tabs>
   </div>
 </template>
 
 <script>
-  import {fetchKeywordList, getKeyword, addKeyword, deleteKeyword, updateKeyword} from "@/api/wechat-mp"
+  import {fetchMaterialList} from "@/api/wechat-mp"
   import {mapGetters} from "vuex"
 
   export default {
@@ -214,19 +96,13 @@
     data() {
       return {
         newsList: [{
-          content: {
-            articles: [
-              {title: "标题1", thumbUrl: "https://cn.vuejs.org/images/logo.png"},
-              {title: "标题2"},
-              {title: "标题3"},
-              {title: "标题4"},
-              {title: "标题5"},
-            ]
-          },
+          mediaId: 'dwdawdawdw',
+          thumbUrl: 'https://mmbiz.qlogo.cn/mmbiz_jpg/uNGYC1dwMGW4F3VxhByQqO1Z2YSibpOqW8rSRv2RGDia4wkCsAuIXNbQkg56jdwfE2QMBoAolBgq6I2dcj9kIynA/0?wx_fmt=jpeg',
+          summary: '1.title1\n2.title2\n3.title3\n4.title4\n5.title5',
           updateTime: "2019-02-12 11:00:00"
         }],
         total: 0,
-        listLoading: true,
+        listLoading: false,
         listQuery: {
           page: 1,
           limit: 20
@@ -292,41 +168,30 @@
     },
 
     created() {
-      this.getList()
+      // this.getList()
     },
 
     methods: {
       getList() {
         this.listLoading = true
-        fetchKeywordList(this.listQuery).then(response => {
-          this.list = response.records
-          this.total = response.total
-          this.listLoading = false
-        })
-      },
-      create(formName) {
-        const set = this.$refs
-        this.form.roleIdList = this.role
-        set[formName].validate(valid => {
-          if (valid) {
-            addKeyword(this.form).then(() => {
-              this.dialogFormVisible = false
-              this.getList()
-              this.$notify({
-                title: "成功",
-                message: "创建成功",
-                type: "success",
-                duration: 2000
-              })
-            })
-          } else {
-            return false;
-          }
-        })
+        fetchMaterialList(this.listQuery.type, this.listQuery.offset, this.listQuery.count)
+          .then(response => {
+            if (this.listQuery.type === 'news') {
+              this.newsList = response
+            }
+            this.list = response.records
+            this.total = response.total
+            this.listLoading = false
+          })
       },
 
-      handleArticleUpdate(row) {
-        this.$router.push({ path:'/wechat/mp/article'})
+      handleMaterialNewsCreate() {
+        this.$router.push({path: '/wechat/mp/article'})
+      },
+
+      handleMaterialNewsUpdate(row) {
+        let mediaId = row.mediaId
+        this.$router.push({path: '/wechat/mp/article', query: {mediaId}})
       },
 
       handleFilter() {

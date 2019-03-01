@@ -35,6 +35,12 @@
     props: {
       imgUrl: {
         type: String
+      },
+      localFile: {
+        type: File
+      },
+      ratio: {
+        type: Number
       }
     },
     data() {
@@ -48,14 +54,13 @@
         nw: 0,
         nh: 0,
         clipData: null,
-        ratio: 2.35, // equal to SelectBox's width / height
         imgSize: {w: 0, h: 0},
         containerTop: 0
       }
     },
 
-    created(){
-      this.initImage(this.imgUrl)
+    created() {
+      this.initImage(this.imgUrl, this.localFile)
     },
 
     mounted() {
@@ -112,7 +117,7 @@
           rw = this.imgSize.w
           rh = rw / this.ratio
         }
-        this.$srcImg.setAttribute('style', `width:${this.imgSize.w}px;height:${this.imgSize.h}px;`)
+        this.$srcImg.setAttribute('style', `width:${this.imgSize.w}px;height:${this.imgSize.h}px;margin-top:${this.imgSize.h-240}`)
         this.$imgContainer.setAttribute('style',
           `width:${this.imgSize.w}px;height:${this.imgSize.h}px;top:${this.containerTop}px;`)
         this.$refs.box.rec = {w: rw, h: rh, l: 0, t: 0}
@@ -165,12 +170,20 @@
         return dataURL
       },
 
-      initImage(src) {
-        let image = new Image()
-        image.crossOrigin = ''
-        image.src = src // 处理缓存
-        image.onload = () => {
-          this.img = this.getBase64Image(image)
+      initImage(src, localFile) {
+        if (src) {
+          let image = new Image()
+          image.crossOrigin = ''
+          image.src = src // 处理缓存
+          image.onload = () => {
+            this.img = this.getBase64Image(image)
+          }
+        } else {
+          let reader = new FileReader();
+          reader.addEventListener("load", () => {
+            this.img = reader.result;
+          }, false);
+          reader.readAsDataURL(localFile)
         }
       }
     }
@@ -211,7 +224,7 @@
   }
 
   .container-bg {
-    width: 480px;
+    width: 300px;
     height: 300px;
     background-color: #000;
     border-radius: 4px;

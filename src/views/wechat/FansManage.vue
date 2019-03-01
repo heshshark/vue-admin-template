@@ -6,7 +6,7 @@
 
       <el-button type="primary" icon="el-icon-refresh" v-waves @click="handleSync" class="filter-item">同步</el-button>
 
-      <el-button type="primary" icon="el-icon-refresh" v-waves @click="handleFansTagCreate" class="filter-item">同步</el-button>
+      <el-button type="primary" icon="el-icon-circle-plus-outline" v-waves @click="handleFansTagCreate" class="filter-item">新建标签</el-button>
     </div>
 
     <el-row>
