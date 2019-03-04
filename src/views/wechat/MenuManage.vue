@@ -105,7 +105,7 @@
         -->
 
         <el-form-item label="省市" prop="area">
-          <dist-picker :province="form.province + '省'" :city="form.city + '市'" :hide-area="true"/>
+          <dist-picker :province="form.province + '省'" :city="form.city + '市'" :hide-area="true" @selected="handleDistSelected"/>
         </el-form-item>
       </el-form>
 
@@ -121,7 +121,7 @@
 </template>
 
 <script>
-  import {addWechatMenu, fetchMenuButtonTree, fetchMenuList, publishMenu} from '@/api/wechat-mp'
+  import {addWechatMenu, fetchMenuButtonTree, fetchMenuList, publishMenu, updateMenu} from '@/api/wechat-mp'
   import {mapGetters} from 'vuex'
   import DistPicker from 'v-distpicker'
   import MenuButtonManage from './MenuButtonManage'
@@ -238,9 +238,34 @@
       remove(row) {
 
       },
+      update(formName) {
+        this.$refs[formName].validate(valid => {
+          if (valid) {
+            this.dialogFormVisible = false
+            updateMenu(this.form)
+              .then(() => {
+                this.$notify({
+                  title: "成功",
+                  message: "更新菜单规则成功",
+                  type: "success",
+                  duration: 2000
+                })
+                this.getList()
+              })
+          } else {
+
+          }
+        })
+      },
 
       handlePublish(menuRuleId) {
         publishMenu(menuRuleId).then(() => {
+          this.$notify({
+            title: "成功",
+            message: "发布成功",
+            type: "success",
+            duration: 2000
+          })
           this.getList()
         })
       },
@@ -279,6 +304,11 @@
           this.dialogFormVisible = true
           this.dialogType = 'buttonEdit'
         })
+      },
+
+      handleDistSelected(data) {
+        this.form.province = data.province.value.substring(0, data.province.value.length - 1)
+        this.form.city = data.city.value.substring(0, data.city.value.length - 1)
       },
 
       handleFilter() {

@@ -12,7 +12,7 @@
                     {{ item.title }}
                   </strong>
                 </el-col>
-                <div class="article-operation-mask" style="top: 110px">
+                <div class="article-operation-mask" style="top: 80px">
                   <el-icon name="arrow-down" class="article-operation" style="margin-left: -150px"
                            @click.native.stop="handleArticleDown(index)"/>
                 </div>
