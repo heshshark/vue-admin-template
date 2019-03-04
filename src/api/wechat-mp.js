@@ -20,6 +20,20 @@ export function syncFans() {
   })
 }
 
+export function updateFansRemarkName(fansId,fansOpenId, remarkName) {
+  return request({
+    url: prefix + '/fans/'+fansId+'/remarkName?openId='+fansOpenId+'&remarkName='+remarkName,
+    method:'patch'
+  })
+}
+
+export function overwriteFansTags(fansId, fansTags) {
+  return request({
+    url: prefix + '/fans/' + fansId + '/tags?tagIds=' + fansTags,
+    method: 'patch',
+  })
+}
+
 /*
 粉丝标签
  */
@@ -76,6 +90,14 @@ export function publishMenu(menuId) {
   return request({
     url: prefix + '/menus/publish/' + menuId,
     method: 'put'
+  })
+}
+
+export function updateMenu(menu) {
+  return request({
+    url: prefix + '/menus',
+    method: 'put',
+    data: menu
   })
 }
 

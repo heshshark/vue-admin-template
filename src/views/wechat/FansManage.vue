@@ -10,7 +10,7 @@
     </div>
 
     <el-row>
-      <el-col :span="8">
+      <el-col :span="4">
         <el-tree
           node-key="id"
           highlight-current
@@ -20,8 +20,8 @@
           class="filter-tree">
         </el-tree>
       </el-col>
-      <el-col :span="16">
-        <el-table :key='tableKey' :data="list" v-loading="listLoading" border fit highlight-current-row style="width: 99%">
+      <el-col :span="20">
+        <el-table :data="list" v-loading="listLoading" border fit highlight-current-row style="width: 99%">
           <el-table-column type="index" width="50">
           </el-table-column>
 
@@ -35,27 +35,21 @@
             </template>
           </el-table-column>
 
-          <el-table-column align="center" label="国家">
+          <el-table-column align="center" label="国家" width="100">
             <template slot-scope="scope">
               <span>{{scope.row.country}}</span>
             </template>
           </el-table-column>
 
-          <el-table-column align="center" label="省份">
+          <el-table-column align="center" label="省份" width="100">
             <template slot-scope="scope">
               <span>{{scope.row.province}}</span>
             </template>
           </el-table-column>
 
-          <el-table-column align="center" label="城市">
+          <el-table-column align="center" label="城市" width="100">
             <template slot-scope="scope">
               <span>{{scope.row.city}}</span>
-            </template>
-          </el-table-column>
-
-          <el-table-column align="center" label="标签">
-            <template slot-scope="scope">
-              <span v-for="tag in scope.row.tagList">{{tag.tagName}} </span>
             </template>
           </el-table-column>
 
@@ -65,15 +59,31 @@
             </template>
           </el-table-column>
 
-          <el-table-column align="center" label="备注名称">
+          <el-table-column align="center" label="备注名称" width="200">
             <template slot-scope="scope">
-              <span>{{scope.row.remarkName}}</span>
+              <template v-if="scope.row.edit">
+                <el-col :span="12">
+                  <el-input v-model="scope.row.remarkName" size="small" style="width: 100px"/>
+                </el-col>
+                <el-col :span="12">
+                  <el-button size="small" type="warning" @click="cancelRemarkNameEdit(scope.row)">取消</el-button>
+                </el-col>
+              </template>
+              <span v-else>{{ scope.row.remarkName }} </span>
             </template>
           </el-table-column>
 
-          <el-table-column align="center" class-name="status-col" label="状态">
+          <el-table-column align="center" class-name="status-col" label="状态" width="100">
             <template slot-scope="scope">
               <el-tag>{{scope.row.isSubscribe | statusFilter}}</el-tag>
+            </template>
+          </el-table-column>
+
+          <el-table-column align="center" label="操作" width="300">
+            <template slot-scope="scope">
+              <el-button v-if="scope.row.edit" type="success" size="small" @click="confirmRemarkNameEdit(scope.row)">确定</el-button>
+              <el-button v-else type="primary" size="small" @click="scope.row.edit=!scope.row.edit">编辑备注名称</el-button>
+              <el-button size="small" type="success" @click="handleUpdateTag(scope.row)">编辑标签</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -82,11 +92,22 @@
       </el-col>
     </el-row>
 
+    <el-dialog :visible.sync="dialogVisible">
+      <strong>选择标签</strong>
+      <el-select v-model="currentFansTags" multiple placeholder="请选择" class="filter-item" style="width: 300px;margin-left:30px">
+        <el-option v-for="item in allTagList" :key="item.id" :value="item.id" :label="item.tagName">
+        </el-option>
+      </el-select>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="cancel('form')">取 消</el-button>
+        <el-button type="primary" @click="updateTag()">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-  import {fetchFansList, syncFans, fetchFansTagList} from "@/api/wechat-mp"
+  import {fetchFansList, syncFans, fetchFansTagList, overwriteFansTags, updateFansRemarkName} from "@/api/wechat-mp"
   import {mapGetters} from "vuex"
 
   export default {
@@ -99,6 +120,9 @@
           1: "关注中"
         }
         return statusMap[status]
+      },
+      tagNameFilter(tag) {
+        return tag.split("[")[0]
       }
     },
 
@@ -111,15 +135,14 @@
           page: 1,
           limit: 20
         },
+
         statusOptions: [0, 1],
-        dialogFormVisible: false,
-        dialogDeptVisible: false,
-        dialogStatus: "",
-        isDisabled: {
-          0: false,
-          1: true
-        },
-        tableKey: 0,
+
+        dialogVisible: false,
+
+        currentFansId: '',
+        currentFansTags: [],
+        allTagList: [],
 
         fansTagData: [
           {
@@ -148,12 +171,39 @@
         this.listLoading = true
         fetchFansList(this.listQuery)
           .then(response => {
-            this.list = response.records
+            this.list = response.records.map(v => {
+              this.$set(v, 'edit', false) // https://vuejs.org/v2/guide/reactivity.html
+              v.originalRemarkName = v.remarkName //  will be used when user click the cancel botton
+              return v
+            })
+
             this.total = response.total
             this.listLoading = false
           })
           .catch(() => {
             this.listLoading = false
+          })
+      },
+      updateTag() {
+        overwriteFansTags(this.currentFansId, this.currentFansTags)
+          .then(() => {
+            this.dialogVisible = false
+          })
+      },
+
+
+      cancelRemarkNameEdit(row) {
+        row.edit = false
+        row.remarkName = row.originalRemarkName
+      },
+      confirmRemarkNameEdit(row) {
+        updateFansRemarkName(row.id, row.openId, row.remarkName)
+          .then(() => {
+            row.edit = false
+            this.$message({
+              message: '更新备注名成功',
+              type: 'success'
+            })
           })
       },
 
@@ -171,20 +221,33 @@
 
       getFansTagList() {
         fetchFansTagList({}).then(response => {
-          let totalFansCount = 0;
-          response.records.forEach(tag => {
-            tag.tagName = tag.tagName+"["+tag.fansCount+"]"
+          this.allTagList = response.records
+
+          let totalFansCount = 0
+          let temp = JSON.parse(JSON.stringify(response.records))
+          temp.forEach(tag => {
+            tag.tagName = tag.tagName + "[" + tag.fansCount + "]"
             totalFansCount += tag.fansCount
           })
           this.fansTagData[0].tagName = "全部[" + totalFansCount + "]"
-          this.fansTagData[0].children = response.records
+          this.fansTagData[0].children = temp
         })
       },
 
-      handleFansTagCreate(){
+      handleUpdateTag(row) {
+        this.currentFansId = row.id;
+        if (!!row.tagList) {
+          for (let i = 0; i < row.tagList.length; i++) {
+            this.currentFansTags[i] = row.tagList[i].id
+          }
+        }
 
+        this.dialogVisible = true
       },
 
+      handleFansTagCreate() {
+
+      },
       handleFansTagClick(data) {
         if (data.id === undefined) {
           this.listQuery.tagId = null
@@ -208,9 +271,8 @@
         this.getList()
       },
 
-      cancel(formName) {
-        this.dialogFormVisible = false
-        this.$refs[formName].resetFields()
+      cancel() {
+        this.dialogVisible = false
       }
     }
   }
