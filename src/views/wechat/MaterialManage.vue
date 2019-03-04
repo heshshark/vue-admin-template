@@ -1,7 +1,7 @@
 <template>
   <div class="app-container calendar-list-container">
-    <el-tabs active-name="first" @tab-click="handleTabClick">
-      <el-tab-pane label="图文素材" name="first">
+    <el-tabs :active-name="listQuery.type" @tab-click="handleTabClick">
+      <el-tab-pane label="图文素材" name="news">
         <el-button type="primary" icon="el-icon-circle-plus-outline" v-waves @click="handleMaterialNewsCreate" class="filter-item">新增</el-button>
 
         <el-table :key='tableKey' :data="newsList" v-loading="listLoading" border fit highlight-current-row style="width: 99%;margin-top: 20px">
@@ -10,7 +10,7 @@
           <el-table-column align="center" label="内容">
             <template slot-scope="scope">
               <el-col :span="6">
-                <img :src="scope.row.thumbUrl"/>
+                <img :src="scope.row.thumbUrl" style="height: 100px;width: 250px"/>
               </el-col>
               <el-col :span="18" :pull="8">
                 <pre style="font-size: 16px">{{ scope.row.summary }}</pre>
@@ -20,13 +20,13 @@
 
           <el-table-column align="center" width="200" label="更新时间">
             <template slot-scope="scope">
-              <span>{{ scope.row.updateTime }}</span>
+              <span>{{ scope.row.gmtModified || scope.row.gmtCreate | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
             </template>
           </el-table-column>
 
           <el-table-column align="center" label="操作" width="200">
             <template slot-scope="scope">
-              <el-button size="small" type="danger" @click="handleMaterialNewsUpdate(scope.row)">编辑</el-button>
+              <el-button size="small" type="primary" @click="handleMaterialNewsUpdate(scope.row)">编辑</el-button>
               <el-button size="small" type="danger" @click="remove(scope.row)">删除</el-button>
             </template>
           </el-table-column>
@@ -44,15 +44,15 @@
         </el-dialog>
       </el-tab-pane>
 
-      <el-tab-pane label="图片素材" name="second">
+      <el-tab-pane label="图片素材" name="image">
 
       </el-tab-pane>
 
-      <el-tab-pane label="语音素材" name="third">
+      <el-tab-pane label="语音素材" name="voice">
 
       </el-tab-pane>
 
-      <el-tab-pane label="视频素材" name="fourth">
+      <el-tab-pane label="视频素材" name="video">
 
       </el-tab-pane>
     </el-tabs>
@@ -105,7 +105,8 @@
         listLoading: false,
         listQuery: {
           page: 1,
-          limit: 20
+          limit: 20,
+          type:'news'
         },
 
         form: {
@@ -168,16 +169,16 @@
     },
 
     created() {
-      // this.getList()
+      this.getList()
     },
 
     methods: {
       getList() {
         this.listLoading = true
-        fetchMaterialList(this.listQuery.type, this.listQuery.offset, this.listQuery.count)
+        fetchMaterialList(this.listQuery.type, this.listQuery.page, this.listQuery.limit)
           .then(response => {
             if (this.listQuery.type === 'news') {
-              this.newsList = response
+              this.newsList = response.records
             }
             this.list = response.records
             this.total = response.total

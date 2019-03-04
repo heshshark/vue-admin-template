@@ -53,13 +53,17 @@
         <el-row>
           <vue-ueditor-wrap v-model="articleList[selectedArticleIndex].content" ref="editor" :init="editorInit" :config="editorConfig"></vue-ueditor-wrap>
         </el-row>
+
+      </el-col>
+
+      <el-col :span="8" :offset="2">
         <el-row style="margin-top: 20px">
           <el-form>
             <el-form-item label="封面">
               <div @click="handleThumbImagePick" :class="selectedArticleIndex === 0?'thumb-uploader-main':'thumb-uploader-normal'">
                 <img v-if="articleList[selectedArticleIndex].thumbUrl" :src="articleList[selectedArticleIndex].thumbUrl"
                      :class="selectedArticleIndex === 0?'thumb-img-main':'thumb-img-normal'">
-                <i v-else class="el-icon-plus"></i>
+                <i v-else class="el-icon-plus" :class="selectedArticleIndex === 0?'thumb-img-add-main':'thumb-img-add-normal'"></i>
               </div>
             </el-form-item>
             <el-form-item label="文章标题">
@@ -93,10 +97,6 @@
           </el-form>
           <el-button type="primary" icon="el-icon-check" v-waves @click="handleArticleSave" class="filter-item">保存</el-button>
         </el-row>
-      </el-col>
-
-      <el-col :span="8" :offset="2">
-        <div v-html="articleList[selectedArticleIndex].content"></div>
       </el-col>
     </el-row>
 
@@ -140,7 +140,7 @@
 </template>
 
 <script>
-  import {addMaterialNews, addMaterial, fetchMaterialList, getMaterial} from '@/api/wechat-mp'
+  import {addMaterial, addMaterialNews, fetchMaterialList, getMaterial} from '@/api/wechat-mp'
   import VueUeditorWrap from 'vue-ueditor-wrap'
   import VueWaterfallEasy from 'vue-waterfall-easy'
   import ImageCropper from '@/components/cropper/CustomCropper'
@@ -162,18 +162,13 @@
 
         articleList: [
           {
-            thumbUrl: 'http://pic3.40017.cn/scenery/destination/2015/04/18/03/vrn29Y.jpg',
-            title: 'title1',
+            thumbUrl: '',
+            title: '标题',
             author: '',
-            content: '你好',
-            digest: "这是摘要",
+            content: '',
+            digest: "摘要",
             needOpenComment: true,
             onlyFansCanComment: false
-          },
-          {
-            thumbUrl: 'https://mmbiz.qpic.cn/mmbiz_png/uNGYC1dwMGWljPgtP9UekLMd7UvjaGDWg7wicceq5vCibx4BicKfaGZNJOe9sDEbs2dklaicj9iaOTJv7P3AKoGMXxA/0?wx_fmt=png',
-            title: 'title2',
-            content: '中国'
           }
         ],
 
@@ -261,6 +256,11 @@
 
       handleArticleSave() {
         addMaterialNews({articles: this.articleList})
+          .then(() => {
+            this.$store.dispatch('delView', this.$router).then(() => {
+              this.$router.back(-1)
+            })
+          })
       },
 
       handleArticleUp(index) {
